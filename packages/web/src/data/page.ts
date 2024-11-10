@@ -21,10 +21,11 @@ function deletePage(page: Page): Promise<Page> {
 }
 
 function queryPage(body: {
-  folderId: string
+  folderId?: string
   pageNumber: number
   pageSize: number
   keyword: string
+  tagId: number | null
 }): Promise<{
   list: Page[]
   total: number
