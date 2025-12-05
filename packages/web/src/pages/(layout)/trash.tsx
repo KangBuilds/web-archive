@@ -1,11 +1,15 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
 import { AlertTriangle, ArchiveRestore, Trash2 } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
+import { Card, CardContent, CardFooter } from '@web-archive/shared/components/card'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
+import type { Page } from '@web-archive/shared/types'
 import EmptyWrapper from '~/components/empty-wrapper'
-import ListView from '~/components/list-view'
+import ScreenshotView from '~/components/screenshot-view'
+import { useMediaQuery } from '~/hooks/useMediaQuery'
 import { clearDeletedPage, queryDeletedPage, restorePage } from '~/data/page'
 
 function Trash() {
@@ -40,6 +44,26 @@ function Trash() {
   }, [])
 
   const itemCount = data?.length ?? 0
+
+  const { '2xl': is2xlScreen, xl: isXlScreen, md: isMdScreen } = useMediaQuery()
+
+  const columnCount = useMemo(() => {
+    if (is2xlScreen)
+      return 4
+    if (isXlScreen)
+      return 3
+    if (isMdScreen)
+      return 2
+    return 1
+  }, [is2xlScreen, isXlScreen, isMdScreen])
+
+  const reorganizedPages = useMemo(() => {
+    const result = Array.from({ length: columnCount }, () => [] as Page[])
+    data?.forEach((page, index) => {
+      result[index % columnCount].push(page)
+    })
+    return result
+  }, [data, columnCount])
 
   return (
     <div className="flex flex-col h-[calc(100vh-1px)]">
@@ -88,24 +112,61 @@ function Trash() {
               </div>
             )}
           >
-            <div className="animate-fade-up">
-              <ListView pages={data}>
-                {page => (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-3 text-primary hover:text-primary hover:bg-primary/10"
-                    disabled={restoring}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      runRestorePage(page.id)
-                    }}
-                  >
-                    <ArchiveRestore className="h-4 w-4 mr-1.5" />
-                    <span className="text-xs font-medium">Restore</span>
-                  </Button>
-                )}
-              </ListView>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {reorganizedPages.map((columnPages, idx) => (
+                <div key={idx} className="flex flex-col gap-4">
+                  {columnPages.map((page, pageIdx) => (
+                    <div
+                      key={page.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${(idx * 50) + (pageIdx * 75)}ms` }}
+                    >
+                      <Card className="group overflow-hidden border-border/50 bg-card hover:border-border hover:shadow-soft-lg transition-all duration-300">
+                        {/* Screenshot */}
+                        <div className="relative overflow-hidden bg-muted">
+                          <ScreenshotView
+                            screenshotId={page.screenshotId}
+                            className="w-full aspect-[16/10] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                            loadingClassName="w-full aspect-[16/10]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+
+                        <CardContent className="p-4 space-y-3">
+                          <h3 className="font-serif text-lg font-semibold leading-snug line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+                            {page.title}
+                          </h3>
+                          {page.pageDesc && (
+                            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                              {page.pageDesc}
+                            </p>
+                          )}
+                        </CardContent>
+
+                        <CardFooter className="p-3 pt-0 flex gap-1.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 px-3 text-primary hover:text-primary hover:bg-primary/10"
+                                  disabled={restoring}
+                                  onClick={() => runRestorePage(page.id)}
+                                >
+                                  <ArchiveRestore className="h-4 w-4 mr-1.5" />
+                                  <span className="text-xs font-medium">Restore</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom">Restore This Page</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </CardFooter>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
           </EmptyWrapper>
         </div>

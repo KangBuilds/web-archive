@@ -1,8 +1,6 @@
 import { Button } from '@web-archive/shared/components/button'
 import { Input } from '@web-archive/shared/components/input'
 import { Search, X } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
-import ViewToggle from './view-toggle'
 
 interface SearchBarProps {
   className?: string
@@ -12,9 +10,6 @@ interface SearchBarProps {
 }
 
 function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarProps) {
-  const location = useLocation()
-  const match = location.pathname.startsWith('/folder')
-
   const handleClear = () => {
     setKeyword('')
     handleSearch()
@@ -28,13 +23,8 @@ function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarPr
 
   return (
     <header className={`${className ?? ''} sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border/40`}>
-      <div className="flex items-center justify-between h-14 px-4 lg:px-6">
-        {/* Left side - View toggle for folder pages */}
-        <div className="flex items-center">
-          {match && <ViewToggle />}
-        </div>
-
-        {/* Right side - Search */}
+      <div className="flex items-center justify-end h-14 px-4 lg:px-6">
+        {/* Search */}
         <div className="flex items-center gap-3">
           <div className="relative group">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">

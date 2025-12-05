@@ -1,20 +1,16 @@
 import { isNil } from '@web-archive/shared/utils'
 import { useOutletContext } from 'react-router-dom'
 import { useInfiniteScroll, useRequest } from 'ahooks'
-import React, { useContext, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { Ref } from '@web-archive/shared/components/scroll-area'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
-import { Button } from '@web-archive/shared/components/button'
-import { FolderOpen, Trash2 } from 'lucide-react'
-import type { Page } from '@web-archive/shared/types'
-import { useNavigate, useParams } from '~/router'
+import { FolderOpen } from 'lucide-react'
+import { useParams } from '~/router'
 import NotFound from '~/components/not-found'
 import LoadingWrapper from '~/components/loading-wrapper'
 import { deletePage, queryPage } from '~/data/page'
 import CardView from '~/components/card-view'
 import EmptyWrapper from '~/components/empty-wrapper'
-import ListView from '~/components/list-view'
-import AppContext from '~/store/app'
 import LoadingMore from '~/components/loading-more'
 import Header from '~/components/header'
 
@@ -65,15 +61,6 @@ function FolderPage() {
     },
   })
 
-  const navigate = useNavigate()
-  const handleItemClick = (page: Page, event: React.MouseEvent) => {
-    if (event.ctrlKey || event.metaKey || event.shiftKey)
-      window.open(`/#/page/${page.id}`, '_blank')
-    else
-      navigate(`/page/:slug`, { params: { slug: String(page.id) } })
-  }
-
-  const { view } = useContext(AppContext)
   const { setKeyword, handleSearch } = useOutletContext<{
     keyword: string
     setKeyword: (keyword: string) => void
@@ -131,27 +118,7 @@ function FolderPage() {
                 </div>
               )}
             >
-              {view === 'card'
-                ? (
-                  <CardView pages={pagesData?.list} onPageDelete={handleDeletePage} />
-                  )
-                : (
-                  <ListView pages={pagesData?.list} onItemClick={handleItemClick} imgPreview>
-                    {page => (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeletePage(page)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </ListView>
-                  )}
+              <CardView pages={pagesData?.list} onPageDelete={handleDeletePage} />
               {loadingMore && <LoadingMore />}
             </EmptyWrapper>
           </LoadingWrapper>
