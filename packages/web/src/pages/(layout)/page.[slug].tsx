@@ -1,8 +1,9 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
 import { ArrowLeft, Download, Maximize2, Minimize2, Trash2 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
+import { useSidebar } from '@web-archive/shared/components/side-bar'
 import IframePageContent from '~/components/iframe-page-content'
 import LoadingWrapper from '~/components/loading-wrapper'
 import { deletePage, getPageDetail } from '~/data/page'
@@ -79,23 +80,31 @@ function ArchivePage() {
   }
 
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
+  const sidebarWasOpen = useRef(sidebarOpen)
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
+      sidebarWasOpen.current = sidebarOpen
+      setSidebarOpen(false)
       document.documentElement.requestFullscreen()
     }
     else {
       document.exitFullscreen()
     }
-  }, [])
+  }, [sidebarOpen, setSidebarOpen])
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
+      const isNowFullscreen = !!document.fullscreenElement
+      setIsFullscreen(isNowFullscreen)
+      if (!isNowFullscreen) {
+        setSidebarOpen(sidebarWasOpen.current)
+      }
     }
     document.addEventListener('fullscreenchange', handleFullscreenChange)
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
-  }, [])
+  }, [setSidebarOpen])
 
   return (
     <main className="h-screen w-screen lg:w-full flex flex-col bg-background">
