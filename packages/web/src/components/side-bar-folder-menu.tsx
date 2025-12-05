@@ -4,7 +4,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub } from 
 import { Skeleton } from '@web-archive/shared/components/skeleton'
 import { cn, isNil } from '@web-archive/shared/utils'
 import { ChevronDown, FolderIcon, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Folder as FolderType } from '@web-archive/shared/types'
 import { useRequest } from 'ahooks'
 import toast from 'react-hot-toast'
@@ -38,7 +38,12 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
 
   const { data: folders, refresh, mutate: setFolders, loading: foldersLoading } = useRequest(getAllFolder)
 
-  emitter.on('refreshSideBar', refresh)
+  useEffect(() => {
+    emitter.on('refreshSideBar', refresh)
+    return () => {
+      emitter.off('refreshSideBar', refresh)
+    }
+  }, [refresh])
 
   const handleDeleteFolder = async (folderId: number) => {
     if (isNil(folders) || !confirm('Are you sure you want to delete this folder?'))
