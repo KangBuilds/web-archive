@@ -7,7 +7,6 @@ import { useTheme } from '@web-archive/shared/components/theme-provider'
 import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LanguageCombobox from '@web-archive/shared/components/language-combobox'
-import AITagSettingCollapsible from './ai-tag-setting-collapsible'
 import { useShouldShowRecent } from '~/hooks/useShouldShowRecent'
 
 function SettingDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
@@ -59,9 +58,6 @@ function SettingDialog({ open, setOpen }: { open: boolean, setOpen: (open: boole
               onCheckedChange={updateShouldShowRecent}
             >
             </Switch>
-          </div>
-          <div>
-            <AITagSettingCollapsible></AITagSettingCollapsible>
           </div>
         </div>
       </DialogContent>

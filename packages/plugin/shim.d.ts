@@ -1,5 +1,5 @@
 import type { ProtocolWithReturn } from 'webext-bridge'
-import type { AITagConfig, Page, Tag } from '@web-archive/shared/types'
+import type { Page, Tag } from '@web-archive/shared/types'
 import type { SeriableSingleFileTask } from './background/processor'
 import type { LoadStage, SingleFileSetting } from '~/utils/singleFile'
 
@@ -39,8 +39,6 @@ declare module 'webext-bridge' {
     'scrape-page-progress-to-popup': ProtocolWithReturn<{ stage: LoadStage }, {}>
     'scrape-page-data': ProtocolWithReturn<SingleFileSetting, { content: string, title: string, href: string, pageDesc: string }>
     'scrape-available': ProtocolWithReturn<{ tabId: number }, { available: boolean }>
-    'get-ai-tag-config': ProtocolWithReturn<{}, { aiTagConfig: AITagConfig }>
-    'generate-tag': ProtocolWithReturn<GenerateTagProps, { tags: string[] }>
     'query-by-url': ProtocolWithReturn<{ pageUrl: string }, {
       pages: Array<{
         id: number

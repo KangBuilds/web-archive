@@ -185,8 +185,6 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
       <div className="flex flex-col space-y-2">
         <Label>{t('tag')}</Label>
         <TagInputWithCache
-          title={uploadPageData.title}
-          description={uploadPageData.pageDesc}
           onValueChange={handleTagSelect}
         >
         </TagInputWithCache>
