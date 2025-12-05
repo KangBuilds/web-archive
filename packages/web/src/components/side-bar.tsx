@@ -1,10 +1,10 @@
-import { Archive, HomeIcon, LogOut, Settings, SquareLibrary, Trash2 } from 'lucide-react'
+import { Archive, HomeIcon, LogOut, Moon, SquareLibrary, Sun, Trash2 } from 'lucide-react'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@web-archive/shared/components/side-bar'
 import { useEffect, useState } from 'react'
 import { isNumberString } from '@web-archive/shared/utils'
 import { useLocation } from 'react-router-dom'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
-import SettingDialog from './setting-dialog'
+import { useTheme } from '@web-archive/shared/components/theme-provider'
 import SidebarFolderMenu from './side-bar-folder-menu'
 import SidebarTagMenu from './side-bar-tag-menu'
 import { Link, useNavigate, useParams } from '~/router'
@@ -16,6 +16,7 @@ interface SidebarProps {
 
 function Component({ selectedTag, setSelectedTag }: SidebarProps) {
   const navigate = useNavigate()
+  const { theme, setTheme } = useTheme()
 
   const [openedFolder, setOpenedFolder] = useState<number | null>(null)
   const { slug } = useParams('/folder/:slug')
@@ -33,14 +34,14 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
     navigate('/login')
   }
 
-  const [settingDialogOpen, setSettingDialogOpen] = useState(false)
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   const isActive = (path: string) => pathname === path
 
   return (
     <Sidebar className="border-r border-border/40">
-      <SettingDialog open={settingDialogOpen} setOpen={setSettingDialogOpen} />
-
       <SidebarHeader className="p-6 pb-4">
         <Link to="/" className="flex items-center gap-3 group">
           <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 group-hover:bg-primary/15 transition-colors">
@@ -114,16 +115,6 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
 
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => setSettingDialogOpen(true)}
-              className="w-full justify-start h-9 px-3 rounded-lg text-sm hover:bg-accent text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="w-4 h-4 mr-3" />
-              Settings
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
-          <SidebarMenuItem>
-            <SidebarMenuButton
               asChild
               className={`w-full justify-start h-9 px-3 rounded-lg text-sm ${
                 isActive('/trash')
@@ -135,6 +126,16 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
                 <Trash2 className="w-4 h-4 mr-3" />
                 Trash
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={toggleTheme}
+              className="w-full justify-start h-9 px-3 rounded-lg text-sm hover:bg-accent text-muted-foreground hover:text-foreground"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 mr-3" /> : <Moon className="w-4 h-4 mr-3" />}
+              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
             </SidebarMenuButton>
           </SidebarMenuItem>
 
