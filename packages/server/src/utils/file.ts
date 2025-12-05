@@ -19,17 +19,18 @@ export async function removeBucketFile(BUCKET: R2Bucket, ids: string | string[])
   await BUCKET.delete(ids)
 }
 
-export async function saveFileToBucket(BUCKET: R2Bucket, file: File | string) {
+export async function saveFileToBucket(BUCKET: R2Bucket, file: File | string, folder?: string) {
   if (isNil(file)) {
     return
   }
   const id = crypto.randomUUID()
+  const key = folder ? `${folder}/${id}` : id
   const fileArraybuffer = await formFileToArrayBuffer(file)
-  const uploadFileResult = await BUCKET.put(id, fileArraybuffer)
+  const uploadFileResult = await BUCKET.put(key, fileArraybuffer)
   if (uploadFileResult === null) {
     return
   }
-  return id
+  return key
 }
 
 export async function getFileFromBucket(BUCKET: R2Bucket, id: string) {

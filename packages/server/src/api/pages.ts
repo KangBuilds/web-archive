@@ -65,7 +65,7 @@ app.post(
 
     const [contentUrl, screenshotId] = await Promise.all([
       saveFileToBucket(c.env.BUCKET, pageFile),
-      saveFileToBucket(c.env.BUCKET, screenshot),
+      saveFileToBucket(c.env.BUCKET, screenshot, 'thumbnails'),
     ])
 
     if (isNil(contentUrl)) {
