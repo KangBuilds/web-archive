@@ -70,6 +70,7 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
   }
 
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
+
   return (
     <SidebarMenu className={className}>
       <NewFolderDialog afterSubmit={refresh} open={newFolderDialogOpen} setOpen={setNewFolderDialogOpen} />
@@ -84,29 +85,36 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
         onOpenChange={setIsFoldersCollapseOpen}
       >
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton className="w-full justify-between">
-            <div className="flex items-center">
-              <FolderIcon className="mr-2 h-4 w-4" />
+          <SidebarMenuButton className="w-full justify-between h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent">
+            <div className="flex items-center text-sm font-medium">
+              <FolderIcon className="mr-2.5 h-4 w-4" />
               {t('folders')}
             </div>
-            <ChevronDown className={cn('h-4 w-4 transition-transform', isFoldersCollapseOpen && 'rotate-180')} />
+            <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', isFoldersCollapseOpen && 'rotate-180')} />
           </SidebarMenuButton>
         </CollapsibleTrigger>
-        <CollapsibleContent>
-          <SidebarMenuSub>
+        <CollapsibleContent className="animate-accordion-down">
+          <SidebarMenuSub className="mt-1 ml-4 border-l border-border/50 pl-3 space-y-0.5">
             {foldersLoading
               ? (
-                <>
+                <div className="space-y-2 py-1">
                   {Array.from({ length: 3 }).map((_, index) => (
-                    <Skeleton key={index} className="w-full h-10" />
+                    <Skeleton key={index} className="w-full h-8 rounded-md" />
                   ))}
-                </>
+                </div>
                 )
               : (
                   folders?.map(folder => (
                     <SidebarMenuItem key={folder.id}>
                       <Link to="/folder/:slug" params={{ slug: folder.id.toString() }}>
-                        <SidebarMenuButton>
+                        <SidebarMenuButton
+                          className={cn(
+                            'w-full h-8 px-2 rounded-md transition-all',
+                            openedFolder === folder.id
+                              ? 'bg-primary/10 text-primary font-medium'
+                              : 'text-muted-foreground hover:text-foreground hover:bg-accent',
+                          )}
+                        >
                           <Folder
                             name={folder.name}
                             id={folder.id}
@@ -114,21 +122,23 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
                             onDelete={handleDeleteFolder}
                             onEdit={handleEditFolder}
                           />
-
                         </SidebarMenuButton>
                       </Link>
-
                     </SidebarMenuItem>
                   ))
                 )}
             <SidebarMenuItem>
-              <Button variant="ghost" className="w-full justify-start" onClick={() => setNewFolderDialogOpen(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start h-8 px-2 text-sm text-muted-foreground hover:text-foreground"
+                onClick={() => setNewFolderDialogOpen(true)}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 {t('add-folder')}
               </Button>
             </SidebarMenuItem>
           </SidebarMenuSub>
-
         </CollapsibleContent>
       </Collapsible>
     </SidebarMenu>

@@ -10,21 +10,24 @@ import TagContext from '~/store/tag'
 
 function Layout() {
   const [keyword, setKeyword] = useState('')
-  // todo refactor rename searchTrigger
   const [searchTrigger, setSearchTrigger] = useState(false)
 
   const handleSearch = () => {
     setSearchTrigger(prev => !prev)
   }
+
   const {
     data: tagCache,
     runAsync: refreshTagCache,
   } = useRequest(getAllTag)
+
   const [selectedTag, setSelectedTag] = useState<number | null>(null)
+
   const setSelectedTagAndReload = (tag: number | null) => {
     setSelectedTag(tag)
     handleSearch()
   }
+
   return (
     <TagContext.Provider value={
       useMemo(() => ({
@@ -33,10 +36,18 @@ function Layout() {
       }), [tagCache, refreshTagCache])
     }
     >
-      <main className="flex min-h-screen">
+      <main className="flex min-h-screen bg-background">
         <Toaster
           position="top-center"
           reverseOrder={false}
+          toastOptions={{
+            className: 'text-sm',
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(var(--border))',
+            },
+          }}
         />
         <SidebarProvider>
           <div className="flex-1 flex">
@@ -44,8 +55,8 @@ function Layout() {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTagAndReload}
             />
-            <div className="flex-1">
-              <Hamburger className="lg:hidden block fixed top-[50%] left-0 cursor-pointer z-50" />
+            <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+              <Hamburger className="lg:hidden block fixed top-4 left-4 z-50 p-2 rounded-lg bg-background/80 backdrop-blur-sm border border-border/50 shadow-soft cursor-pointer" />
               <Outlet context={{ keyword, searchTrigger, handleSearch, setKeyword, selectedTag }} />
             </div>
           </div>

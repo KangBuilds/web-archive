@@ -1,34 +1,24 @@
+/* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--muted));
   border-radius: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
+  background: hsl(var(--border));
   border-radius: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: hsl(var(--muted-foreground));
   border-radius: 5px;
 }
 
-.dark .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgb(55 65 81); 
-}
-
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgb(31 41 55); 
-
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgb(21 31 45); 
-}
-
+/* Animations */
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -37,3 +27,19 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.3s ease-out;
+}
+

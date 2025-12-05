@@ -1,7 +1,8 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useKeyPress, useRequest } from 'ahooks'
-import { ArrowLeft, ArrowRight, House } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Home, Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
 import PoweredBy from '~/components/powerd-by'
 import { getNextShowcasePageId } from '~/data/showcase'
 import { useNavigate, useParams } from '~/router'
@@ -22,6 +23,7 @@ async function getPageContent(pageId: string | undefined) {
 function ShowcasePage() {
   const navigate = useNavigate()
   const { slug } = useParams('/showcase/page/:slug')
+
   useEffect(() => {
     if (!slug) {
       navigate('/showcase/folder')
@@ -45,6 +47,7 @@ function ShowcasePage() {
   const goBack = () => {
     window.history.back()
   }
+
   const goHome = () => {
     navigate('/showcase/folder')
   }
@@ -52,6 +55,7 @@ function ShowcasePage() {
   useKeyPress('leftarrow', () => {
     goBack()
   })
+
   useKeyPress('rightarrow', () => {
     goNext(Number(slug))
   })
@@ -64,49 +68,104 @@ function ShowcasePage() {
   }, {
     refreshDeps: [pageId],
   })
+
   useEffect(() => {
     return () => {
       pageContentUrl && URL.revokeObjectURL(pageContentUrl)
     }
   }, [pageContentUrl])
 
+  const isLoading = pageLoading || getNextLoading
+
   return (
-    <main className="min-h-screen flex flex-col">
-      <div className="w-screen z-20 fixed flex justify-between items-center">
-        <Button variant="ghost" onClick={goHome} className="m-2">
-          <House className="w-8 h-8" />
-        </Button>
-        <PoweredBy />
-      </div>
-      <div className="flex flex-1 pt-20">
-        <nav className="p-2 justify-between items-center hidden xl:flex">
-          <Button variant="ghost" size="sm" onClick={goBack} className="h-full">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </nav>
-        <div className="flex-1 p-4 pt-0">
-          {
-          (pageLoading || getNextLoading)
-            ? (
-              <div className="w-full h-full flex flex-col items-center justify-center">
-                <div className="m-b-xl h-8 w-8 animate-spin border-4 border-t-transparent rounded-full border-primary"></div>
-                <div>Loading...</div>
-              </div>
-              )
-            : (
-              <iframe
-                src={pageContentUrl}
-                className="w-full h-full bg-current"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              />
-              )
-        }
+    <main className="h-screen flex flex-col bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 flex items-center justify-between h-14 px-4 bg-background/80 backdrop-blur-sm border-b border-border/40">
+        <div className="flex items-center gap-2">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={goHome}
+                >
+                  <Home className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Back to showcase</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <div className="h-6 w-px bg-border" />
+
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={goBack}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Previous (←)</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={() => goNext(Number(slug))}
+                  disabled={getNextLoading}
+                >
+                  {getNextLoading
+                    ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      )
+                    : (
+                      <ArrowRight className="w-5 h-5" />
+                      )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Next (→)</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <nav className="p-2 justify-between items-center hidden xl:flex">
-          <Button variant="ghost" size="sm" onClick={() => goNext(Number(slug))} className="h-full">
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-        </nav>
+
+        <a
+          href="https://github.com/ray-d-song/web-archive"
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Web Archive
+        </a>
+      </header>
+
+      {/* Content */}
+      <div className="flex-1 overflow-hidden">
+        {isLoading
+          ? (
+            <div className="w-full h-full flex flex-col items-center justify-center animate-fade-in">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <p className="mt-4 text-sm text-muted-foreground">Loading page...</p>
+            </div>
+            )
+          : (
+            <iframe
+              src={pageContentUrl}
+              className="w-full h-full border-0"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            />
+            )}
       </div>
     </main>
   )

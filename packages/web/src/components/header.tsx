@@ -1,6 +1,6 @@
 import { Button } from '@web-archive/shared/components/button'
 import { Input } from '@web-archive/shared/components/input'
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import ViewToggle from './view-toggle'
@@ -17,29 +17,58 @@ function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarPr
   const location = useLocation()
   const match = location.pathname.startsWith('/folder')
 
+  const handleClear = () => {
+    setKeyword('')
+    handleSearch()
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
   return (
-    <div className={`${className ?? ''} flex items-center m-2 ${match ? 'justify-between' : 'justify-end'}`}>
-      {match && <ViewToggle />}
-      <div className="flex items-center space-x-2">
-        <div className="flex items-center border rounded-md px-3" cmdk-input-wrapper="">
-          <Search className="h-4 w-4 shrink-0 opacity-50" />
-          <Input
-            className="border-none outline-none focus-visible:ring-offset-0 focus-visible:ring-ring w-52"
-            placeholder={t('search-placeholder')}
-            value={keyword}
-            showRing={false}
-            onChange={e => setKeyword(e.target.value)}
-            onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch()
-              }
-            }}
-          >
-          </Input>
+    <header className={`${className ?? ''} sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border/40`}>
+      <div className="flex items-center justify-between h-14 px-4 lg:px-6">
+        {/* Left side - View toggle for folder pages */}
+        <div className="flex items-center">
+          {match && <ViewToggle />}
         </div>
-        <Button onClick={handleSearch}>{t('search')}</Button>
+
+        {/* Right side - Search */}
+        <div className="flex items-center gap-3">
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            </div>
+            <Input
+              className="w-56 lg:w-72 h-9 pl-9 pr-8 bg-secondary/50 border-transparent hover:border-border focus:border-primary focus:bg-background transition-all text-sm"
+              placeholder={t('search-placeholder')}
+              value={keyword}
+              showRing={false}
+              onChange={e => setKeyword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            {keyword && (
+              <button
+                onClick={handleClear}
+                className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <Button
+            onClick={handleSearch}
+            size="sm"
+            className="h-9 px-4 font-medium shadow-none"
+          >
+            {t('search')}
+          </Button>
+        </div>
       </div>
-    </div>
+    </header>
   )
 }
 

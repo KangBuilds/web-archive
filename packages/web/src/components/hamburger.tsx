@@ -1,5 +1,5 @@
 import { useSidebar } from '@web-archive/shared/components/side-bar'
-import { SquareMenu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 
 interface HamburgerProps {
   className?: string
@@ -9,9 +9,13 @@ interface HamburgerProps {
 function Hamburger({ className, onClick }: HamburgerProps) {
   const { openMobile, setOpenMobile } = useSidebar()
   return (
-    <div className={`text-white bg-blue-600 py-2 pr-3 pl-1 rounded-r-[50%] ${className}`} onClick={() => setOpenMobile(!openMobile)}>
-      <SquareMenu className="h-5 w-5" />
-    </div>
+    <button
+      className={className}
+      onClick={() => setOpenMobile(!openMobile)}
+      aria-label="Toggle menu"
+    >
+      <Menu className="h-5 w-5 text-foreground" />
+    </button>
   )
 }
 

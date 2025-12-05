@@ -2,6 +2,7 @@ import { useInfiniteScroll } from 'ahooks'
 import { useRef } from 'react'
 import type { Ref } from '@web-archive/shared/components/scroll-area'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
+import { SquareLibrary } from 'lucide-react'
 import LoadingWrapper from '~/components/loading-wrapper'
 import CardView from '~/components/card-view'
 import EmptyWrapper from '~/components/empty-wrapper'
@@ -35,18 +36,45 @@ function ShowcaseFolderPage() {
     },
   )
 
+  const totalPages = pagesData?.total ?? 0
+
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-0">
       <PoweredBy />
-      <ScrollArea ref={scrollRef} className="p-4 overflow-auto h-[calc(100vh-84px)]">
-        <LoadingWrapper loading={pagesLoading || (!pagesData)}>
-          <div className="h-full">
-            <EmptyWrapper empty={pagesData?.list.length === 0}>
-              <CardView pages={pagesData?.list} onPageDelete={() => { }} />
+
+      <ScrollArea ref={scrollRef} className="flex-1 overflow-auto">
+        <div className="p-6">
+          {/* Header info */}
+          {!pagesLoading && pagesData && (
+            <div className="mb-6 animate-fade-up">
+              <h1 className="font-serif text-2xl font-bold text-foreground mb-1">Showcase</h1>
+              <p className="text-sm text-muted-foreground">
+                {totalPages}
+                {' '}
+                shared page
+                {totalPages !== 1 ? 's' : ''}
+              </p>
+            </div>
+          )}
+
+          <LoadingWrapper loading={pagesLoading || !pagesData}>
+            <EmptyWrapper
+              empty={pagesData?.list.length === 0}
+              emptyElement={(
+                <div className="flex flex-col items-center justify-center py-20 animate-fade-up">
+                  <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    <SquareLibrary className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-serif text-lg font-medium text-foreground mb-1">No showcased pages</h3>
+                  <p className="text-sm text-muted-foreground">Share pages to see them here</p>
+                </div>
+              )}
+            >
+              <CardView pages={pagesData?.list} onPageDelete={() => {}} />
+              {loadingMore && <LoadingMore />}
             </EmptyWrapper>
-            {loadingMore && <LoadingMore />}
-          </div>
-        </LoadingWrapper>
+          </LoadingWrapper>
+        </div>
       </ScrollArea>
     </div>
   )

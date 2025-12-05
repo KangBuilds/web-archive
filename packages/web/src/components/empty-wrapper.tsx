@@ -1,7 +1,16 @@
 import Empty from './empty'
 
-function EmptyWrapper({ children, empty }: { children: React.ReactNode, empty: boolean }) {
-  return empty ? <Empty className="h-full" /> : children
+interface EmptyWrapperProps {
+  children: React.ReactNode
+  empty: boolean
+  emptyElement?: React.ReactNode
+}
+
+function EmptyWrapper({ children, empty, emptyElement }: EmptyWrapperProps) {
+  if (empty) {
+    return emptyElement ?? <Empty className="h-full" />
+  }
+  return children
 }
 
 export default EmptyWrapper

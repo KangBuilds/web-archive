@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useRef } from 'react'
 import type { Ref } from '@web-archive/shared/components/scroll-area'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
 import { Button } from '@web-archive/shared/components/button'
-import { Trash } from 'lucide-react'
+import { FolderOpen, Trash2 } from 'lucide-react'
 import type { Page } from '@web-archive/shared/types'
 import { useNavigate, useParams } from '~/router'
 import NotFound from '~/components/not-found'
@@ -20,9 +20,13 @@ import Header from '~/components/header'
 
 function FolderPage() {
   const { slug } = useParams('/folder/:slug')
-
   const scrollRef = useRef<Ref>(null)
-  const { keyword, searchTrigger, selectedTag } = useOutletContext<{ keyword: string, searchTrigger: boolean, selectedTag: number | null }>()
+  const { keyword, searchTrigger, selectedTag } = useOutletContext<{
+    keyword: string
+    searchTrigger: boolean
+    selectedTag: number | null
+  }>()
+
   const PAGE_SIZE = 14
   const { data: pagesData, loading: pagesLoading, mutate: setPageData, loadingMore, reload } = useInfiniteScroll(
     async (d) => {
@@ -49,6 +53,7 @@ function FolderPage() {
       },
     },
   )
+
   useEffect(() => {
     reload()
   }, [searchTrigger, slug])
@@ -69,18 +74,63 @@ function FolderPage() {
   }
 
   const { view } = useContext(AppContext)
-  const { setKeyword, handleSearch } = useOutletContext<{ keyword: string, setKeyword: (keyword: string) => void, handleSearch: () => void }>()
+  const { setKeyword, handleSearch } = useOutletContext<{
+    keyword: string
+    setKeyword: (keyword: string) => void
+    handleSearch: () => void
+  }>()
 
   if (isNil(slug))
     return <NotFound />
 
+  const totalPages = pagesData?.total ?? 0
+
   return (
-    <div className="flex flex-col flex-1">
+    <div className="flex flex-col flex-1 min-h-0">
       <Header keyword={keyword} setKeyword={setKeyword} handleSearch={handleSearch} />
-      <ScrollArea ref={scrollRef} className="p-4 overflow-auto h-[calc(100vh-58px)]">
-        <LoadingWrapper loading={pagesLoading || (!pagesData)}>
-          <div className="h-full">
-            <EmptyWrapper empty={pagesData?.list.length === 0}>
+
+      <ScrollArea ref={scrollRef} className="flex-1 overflow-auto">
+        <div className="p-6">
+          {/* Results info */}
+          {!pagesLoading && pagesData && (
+            <div className="mb-4 animate-fade-up">
+              <p className="text-sm text-muted-foreground">
+                {totalPages}
+                {' '}
+                page
+                {totalPages !== 1 ? 's' : ''}
+                {' '}
+                in this folder
+                {keyword && (
+                  <span className="ml-1">
+                    matching "
+                    <span className="text-foreground font-medium">{keyword}</span>
+                    "
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
+          <LoadingWrapper loading={pagesLoading || !pagesData}>
+            <EmptyWrapper
+              empty={pagesData?.list.length === 0}
+              emptyElement={(
+                <div className="flex flex-col items-center justify-center py-20 animate-fade-up">
+                  <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    <FolderOpen className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-serif text-lg font-medium text-foreground mb-1">
+                    {keyword ? 'No results found' : 'Empty folder'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {keyword
+                      ? 'Try adjusting your search terms'
+                      : 'Save pages to this folder using the extension'}
+                  </p>
+                </div>
+              )}
+            >
               {view === 'card'
                 ? (
                   <CardView pages={pagesData?.list} onPageDelete={handleDeletePage} />
@@ -89,22 +139,23 @@ function FolderPage() {
                   <ListView pages={pagesData?.list} onItemClick={handleItemClick} imgPreview>
                     {page => (
                       <Button
-                        variant="link"
+                        variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => {
                           e.stopPropagation()
                           handleDeletePage(page)
                         }}
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </ListView>
                   )}
+              {loadingMore && <LoadingMore />}
             </EmptyWrapper>
-            {loadingMore && <LoadingMore />}
-          </div>
-        </LoadingWrapper>
+          </LoadingWrapper>
+        </div>
       </ScrollArea>
     </div>
   )

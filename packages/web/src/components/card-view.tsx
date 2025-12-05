@@ -21,14 +21,19 @@ function CardView({ pages, onPageDelete }: { pages?: Page[], onPageDelete: (page
     return result.map((_, idx) =>
       pages
         ?.filter((_, index) => index % columnCount === idx)
-        .map(page => (
-          <PageCard key={page.id} page={page} onPageDelete={onPageDelete} />
+        .map((page, pageIdx) => (
+          <div
+            key={page.id}
+            style={{ animationDelay: `${(idx * 50) + (pageIdx * 75)}ms` }}
+          >
+            <PageCard page={page} onPageDelete={onPageDelete} />
+          </div>
         )),
     )
   }, [pages, columnCount, onPageDelete])
 
   return (
-    <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       {reorganizedPages.map((columnPages, idx) => (
         <div key={idx} className="flex flex-col gap-4">
           {columnPages}

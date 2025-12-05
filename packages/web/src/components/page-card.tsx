@@ -1,10 +1,10 @@
 import type { Page } from '@web-archive/shared/types'
 import React, { memo, useContext, useState } from 'react'
 import { useRequest } from 'ahooks'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@web-archive/shared/components/card'
+import { Card, CardContent, CardFooter } from '@web-archive/shared/components/card'
 import { Button } from '@web-archive/shared/components/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
-import { ExternalLink, Eye, EyeOff, SquarePen, Trash } from 'lucide-react'
+import { ExternalLink, Eye, EyeOff, SquarePen, Trash2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { BadgeSpan } from '@web-archive/shared/components/badge'
@@ -20,9 +20,6 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
   const { t } = useTranslation()
   const { tagCache, refreshTagCache } = useContext(TagContext)
   const bindTags = tagCache?.filter(tag => tag.pageIds.includes(page.id)) ?? []
-  const tagBadgeList = bindTags.map((tag) => {
-    return (<BadgeSpan key={tag.id} variant="outline" className="select-none">{tag.name}</BadgeSpan>)
-  })
 
   const location = useLocation()
   const isShowcased = location.pathname.startsWith('/showcase')
@@ -30,11 +27,13 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
 
   const handleClickPageUrl = (e: React.MouseEvent, page: Page) => {
     e.stopPropagation()
+    e.preventDefault()
     window.open(page.pageUrl, '_blank')
   }
 
   const handleDeletePage = (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     if (window.confirm(t('delete-this-page-confirm'))) {
       onPageDelete?.(page)
     }
@@ -55,123 +54,157 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
   const [openCardEditDialog, setOpenCardEditDialog] = useState(false)
   const handleEditPage = async (e: React.MouseEvent) => {
     e.stopPropagation()
+    e.preventDefault()
     await refreshTagCache()
     setOpenCardEditDialog(true)
   }
 
   return (
-    <div>
-      {
-        !isShowcased && (
-          <CardEditDialog open={openCardEditDialog} onOpenChange={setOpenCardEditDialog} pageId={page.id} />
-        )
-      }
+    <div className="animate-fade-up">
+      {!isShowcased && (
+        <CardEditDialog open={openCardEditDialog} onOpenChange={setOpenCardEditDialog} pageId={page.id} />
+      )}
 
-      <Card
-        key={page.id}
-        className="cursor-pointer hover:shadow-lg transition-shadow flex flex-col relative group overflow-hidden"
-      >
-        <Link to={redirectTo} params={{ slug: page.id.toString() }}>
-          <CardHeader>
-            <CardTitle className="leading-8 text-lg line-clamp-2">{page.title}</CardTitle>
-            <CardDescription className="space-x-1">
-              {tagBadgeList}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1">
+      <Card className="group overflow-hidden border-border/50 bg-card hover:border-border hover:shadow-soft-lg transition-all duration-300">
+        <Link to={redirectTo} params={{ slug: page.id.toString() }} className="block">
+          {/* Screenshot */}
+          <div className="relative overflow-hidden bg-muted">
             <ScreenshotView
               screenshotId={page.screenshotId}
-              className="w-full mb-2"
-              loadingClassName="w-full h-48"
-            >
-            </ScreenshotView>
-            <p className="h-auto text-sm text-gray-600 dark:text-gray-400 line-clamp-3">{page.pageDesc}</p>
+              className="w-full aspect-[16/10] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+              loadingClassName="w-full aspect-[16/10]"
+            />
+            {/* Gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+
+          <CardContent className="p-4 space-y-3">
+            {/* Title */}
+            <h3 className="font-serif text-lg font-semibold leading-snug line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+              {page.title}
+            </h3>
+
+            {/* Tags */}
+            {bindTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {bindTags.slice(0, 3).map(tag => (
+                  <BadgeSpan
+                    key={tag.id}
+                    variant="secondary"
+                    className="text-xs px-2 py-0.5 bg-secondary/70 text-secondary-foreground border-0"
+                  >
+                    {tag.name}
+                  </BadgeSpan>
+                ))}
+                {bindTags.length > 3 && (
+                  <BadgeSpan variant="secondary" className="text-xs px-2 py-0.5 bg-secondary/70 text-secondary-foreground border-0">
+                    +
+                    {bindTags.length - 3}
+                  </BadgeSpan>
+                )}
+              </div>
+            )}
+
+            {/* Description */}
+            {page.pageDesc && (
+              <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                {page.pageDesc}
+              </p>
+            )}
           </CardContent>
         </Link>
 
-        <CardFooter className="flex space-x-2 justify-end w-full backdrop-blur-sm py-4 absolute bottom-0 group-hover:opacity-100 sm:opacity-0 transition-opacity">
-          {
-            !isShowcased && (
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditPage}
-                    >
-                      <SquarePen className="w-5 h-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {t('edit-page')}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )
-          }
+        {/* Action buttons */}
+        <CardFooter className="p-3 pt-0 flex gap-1.5 justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {!isShowcased && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
+                    onClick={handleEditPage}
+                  >
+                    <SquarePen className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  {t('edit-page')}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" size="sm" onClick={e => handleClickPageUrl(e, page)}>
-                  <ExternalLink className="w-5 h-5" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
+                  onClick={e => handleClickPageUrl(e, page)}
+                >
+                  <ExternalLink className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipPortal>
-                <TooltipContent>
+                <TooltipContent side="bottom">
                   {t('open-original-link')}
                 </TooltipContent>
               </TooltipPortal>
             </Tooltip>
           </TooltipProvider>
 
-          {
-            !isShowcased && (
-              <>
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={handleDeletePage}>
-                        <Trash className="w-5 h-5" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {t('delete-page')}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider delayDuration={200}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          updateShowcase({ id: page.id, isShowcased: showcaseState === 1 ? 0 : 1 })
-                        }}
-                      >
-                        {
-                          showcaseState === 1 ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />
-                        }
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipPortal>
-                      <TooltipContent>
-                        {
-                          showcaseState === 1
-                            ? t('remove-from-showcase')
-                            : t('add-to-showcase')
-                        }
-                      </TooltipContent>
-                    </TooltipPortal>
+          {!isShowcased && (
+            <>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={handleDeletePage}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    {t('delete-page')}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-                  </Tooltip>
-                </TooltipProvider>
-              </>
-            )
-          }
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={`h-8 w-8 ${
+                        showcaseState === 1
+                          ? 'text-primary hover:text-primary/80'
+                          : 'text-muted-foreground hover:text-foreground'
+                      } hover:bg-accent`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        updateShowcase({ id: page.id, isShowcased: showcaseState === 1 ? 0 : 1 })
+                      }}
+                    >
+                      {showcaseState === 1 ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipPortal>
+                    <TooltipContent side="bottom">
+                      {showcaseState === 1 ? t('remove-from-showcase') : t('add-to-showcase')}
+                    </TooltipContent>
+                  </TooltipPortal>
+                </Tooltip>
+              </TooltipProvider>
+            </>
+          )}
         </CardFooter>
       </Card>
     </div>
