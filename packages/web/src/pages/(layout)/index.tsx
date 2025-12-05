@@ -5,67 +5,17 @@ import type { Page } from '@web-archive/shared/types'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
 import { useOutletContext } from 'react-router-dom'
 import { isNil, isNotNil } from '@web-archive/shared/utils'
-import { Archive, Clock, FolderOpen, HardDrive } from 'lucide-react'
+import { Archive } from 'lucide-react'
 import { useMediaQuery } from '~/hooks/useMediaQuery'
 import { deletePage, getRecentSavePage, queryPage } from '~/data/page'
 import PageCard from '~/components/page-card'
-import { getPageChartData, getR2Usage } from '~/data/data'
 import Header from '~/components/header'
 import LoadingWrapper from '~/components/loading-wrapper'
 import CardView from '~/components/card-view'
 import LoadingMore from '~/components/loading-more'
 import { useShouldShowRecent } from '~/hooks/useShouldShowRecent'
 
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  subValue,
-  loading,
-}: {
-  icon: React.ElementType
-  label: string
-  value: string | number
-  subValue?: string
-  loading?: boolean
-}) {
-  return (
-    <div className="flex items-center gap-4 p-5 rounded-xl bg-card border border-border/50 hover:border-border transition-colors">
-      <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10">
-        <Icon className="w-5 h-5 text-primary" />
-      </div>
-      <div>
-        {loading
-          ? (
-            <div className="space-y-2">
-              <div className="h-6 w-16 bg-muted animate-pulse rounded" />
-              <div className="h-4 w-24 bg-muted animate-pulse rounded" />
-            </div>
-            )
-          : (
-            <>
-              <p className="font-serif text-2xl font-bold text-foreground">{value}</p>
-              <p className="text-sm text-muted-foreground">
-                {label}
-                {subValue && (
-                  <span className="ml-1 text-xs">
-                    (
-                    {subValue}
-                    )
-                  </span>
-                )}
-              </p>
-            </>
-            )}
-      </div>
-    </div>
-  )
-}
-
 function RecentSavePageView() {
-  const { data: r2Data, loading: r2Loading } = useRequest(getR2Usage)
-  const { data: pageChartData, loading: chartLoading } = useRequest(getPageChartData)
-
   const { shouldShowRecent } = useShouldShowRecent()
   const [pages, setPages] = useState<Page[]>([])
   useRequest(getRecentSavePage, {
@@ -105,41 +55,9 @@ function RecentSavePageView() {
     )
   }, [pages, columnCount, handleDeletePage])
 
-  const folderCount = pageChartData?.folders?.length ?? 0
-  const totalStorage = Math.round((r2Data?.size ?? 0) / 1024 / 1024)
-
   return (
     <ScrollArea className="overflow-auto h-[calc(100vh-58px)]">
       <div className="p-6 space-y-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-up">
-          <StatCard
-            icon={Archive}
-            label="Archived Pages"
-            value={pageChartData?.all ?? 0}
-            loading={chartLoading}
-          />
-          <StatCard
-            icon={FolderOpen}
-            label="Folders"
-            value={folderCount}
-            loading={chartLoading}
-          />
-          <StatCard
-            icon={HardDrive}
-            label="Storage Used"
-            value={`${totalStorage} MB`}
-            subValue={`${r2Data?.count ?? 0} objects`}
-            loading={r2Loading}
-          />
-          <StatCard
-            icon={Clock}
-            label="Recent Saves"
-            value={pages.length}
-            loading={false}
-          />
-        </div>
-
         {/* Recent Pages Section */}
         {shouldShowRecent && pages.length > 0 && (
           <div className="space-y-4 animate-fade-up" style={{ animationDelay: '100ms' }}>
