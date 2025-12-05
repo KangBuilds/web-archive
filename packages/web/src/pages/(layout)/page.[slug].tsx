@@ -1,7 +1,7 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
-import { ArrowLeft, Download, Trash2 } from 'lucide-react'
-import { useEffect } from 'react'
+import { ArrowLeft, Download, Maximize2, Minimize2, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
 import IframePageContent from '~/components/iframe-page-content'
 import LoadingWrapper from '~/components/loading-wrapper'
@@ -78,6 +78,25 @@ function ArchivePage() {
     goBack()
   }
 
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen()
+    }
+    else {
+      document.exitFullscreen()
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+  }, [])
+
   return (
     <main className="h-screen w-screen lg:w-full flex flex-col bg-background">
       {/* Header */}
@@ -121,6 +140,23 @@ function ArchivePage() {
                 </a>
               </TooltipTrigger>
               <TooltipContent>Download</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Fullscreen button */}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                  onClick={toggleFullscreen}
+                >
+                  {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
