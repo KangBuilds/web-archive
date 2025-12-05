@@ -68,16 +68,6 @@ function updatePage(body: {
   })
 }
 
-function updatePageShowcase(body: {
-  id: number
-  isShowcased: number
-}): Promise<Page> {
-  return fetcher<Page>('/pages/update_showcase', {
-    method: 'PUT',
-    body,
-  })
-}
-
 function clearDeletedPage(): Promise<boolean> {
   return fetcher<boolean>('/pages/clear_deleted', {
     method: 'DELETE',
@@ -122,7 +112,6 @@ export {
   queryDeletedPage,
   restorePage,
   clearDeletedPage,
-  updatePageShowcase,
   getPageScreenshot,
   getRecentSavePage,
   queryAllPageIds,

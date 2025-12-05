@@ -1,7 +1,6 @@
 import { DialogClose, DialogDescription, DialogTitle } from '@radix-ui/react-dialog'
 import { Dialog, DialogContent, DialogFooter } from '@web-archive/shared/components/dialog'
 import { Input } from '@web-archive/shared/components/input'
-import { Switch } from '@web-archive/shared/components/switch'
 import { useRequest } from 'ahooks'
 import { useForm } from 'react-hook-form'
 import { memo, useContext, useEffect } from 'react'
@@ -35,7 +34,6 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
     title: z.string().min(1, { message: 'Title is required' }),
     pageDesc: z.string().min(1, { message: 'Description is required' }),
     pageUrl: z.string().min(1, { message: 'Page URL is required' }),
-    isShowcased: z.number(),
     folderId: z.number(),
     unbindTags: z.array(z.string()),
     bindTags: z.array(z.string()),
@@ -45,7 +43,6 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
       title: '',
       pageDesc: '',
       pageUrl: '',
-      isShowcased: 0,
       folderId: 0,
       unbindTags: [],
       bindTags: [],
@@ -60,7 +57,6 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
           title: data.title,
           pageDesc: data.pageDesc,
           pageUrl: data.pageUrl,
-          isShowcased: data.isShowcased,
           folderId: data.folderId,
         })
       },
@@ -107,7 +103,7 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
               className="space-y-4"
               onSubmit={form.handleSubmit(data => updatePageRun({
                 ...data,
-                isShowcased: Number(data.isShowcased),
+                isShowcased: 0,
                 id: pageId,
               }))}
             >
@@ -147,18 +143,6 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                       <Input placeholder="Enter page URL" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="isShowcased"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col gap-2">
-                    <FormLabel>Showcased</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value === 1} onCheckedChange={value => field.onChange(Number(value))} />
-                    </FormControl>
                   </FormItem>
                 )}
               />

@@ -9,15 +9,12 @@ export type Path =
   | `/folder/:slug`
   | `/login`
   | `/page/:slug`
-  | `/showcase/folder`
-  | `/showcase/page/:slug`
   | `/trash`
 
 export type Params = {
   '/error/:slug': { slug: string }
   '/folder/:slug': { slug: string }
   '/page/:slug': { slug: string }
-  '/showcase/page/:slug': { slug: string }
 }
 
 export type ModalPath = never

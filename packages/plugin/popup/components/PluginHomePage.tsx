@@ -1,6 +1,6 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
-import { History, House, LogOut, Settings, SquareLibrary } from 'lucide-react'
+import { History, House, LogOut, Settings } from 'lucide-react'
 import { sendMessage } from 'webext-bridge/popup'
 import { isNil } from '@web-archive/shared/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
@@ -22,11 +22,6 @@ function PluginHomePage({ setActivePage }: PluginHomePageProps) {
   async function openServerPage() {
     const { serverUrl } = await sendMessage('get-server-url', {})
     window.open(serverUrl, '_blank')
-  }
-
-  async function openShowCasePage() {
-    const { serverUrl } = await sendMessage('get-server-url', {})
-    window.open(`${serverUrl}/#/showcase/folder`, '_blank')
   }
 
   const { data: saveAvailabel } = useRequest(async () => {
@@ -53,18 +48,6 @@ function PluginHomePage({ setActivePage }: PluginHomePageProps) {
               </TooltipTrigger>
               <TooltipContent>
                 <div className="text-sm">Open Home Page</div>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <SquareLibrary
-                  className="cursor-pointer"
-                  onClick={openShowCasePage}
-                >
-                </SquareLibrary>
-              </TooltipTrigger>
-              <TooltipContent>
-                <div className="text-sm">Open Showcase Page</div>
               </TooltipContent>
             </Tooltip>
             <Tooltip>

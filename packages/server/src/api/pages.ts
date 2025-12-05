@@ -7,7 +7,6 @@ import result from '~/utils/result'
 import { clearDeletedPage, deletePageById, getPageById, insertPage, queryAllPageIds, queryDeletedPage, queryPage, queryPageByUrl, queryRecentSavePage, restorePage, selectPageTotalCount, updatePage } from '~/model/page'
 import { getFolderById, restoreFolder } from '~/model/folder'
 import { getFileFromBucket, saveFileToBucket } from '~/utils/file'
-import { updateShowcase } from '~/model/showcase'
 import { updateBindPageByTagName } from '~/model/tag'
 
 const app = new Hono<HonoTypeUserInformation>()
@@ -377,30 +376,6 @@ app.get(
     return c.html(
       await content.text(),
     )
-  },
-)
-
-app.put(
-  '/update_showcase',
-  validator('json', (value, c) => {
-    if (!value.id || typeof value.id !== 'number') {
-      return c.json(result.error(400, 'Page ID is required and should be a number'))
-    }
-
-    if (typeof value.isShowcased !== 'number') {
-      return c.json(result.error(400, 'isShowcased is required and should be a number'))
-    }
-
-    return {
-      id: value.id,
-      isShowcased: value.isShowcased,
-    }
-  }),
-  async (c) => {
-    const { id, isShowcased } = c.req.valid('json')
-    const updateResult = await updateShowcase(c.env.DB, { id, isShowcased })
-
-    return c.json(result.success(updateResult))
   },
 )
 

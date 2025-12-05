@@ -9,7 +9,6 @@ import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
 import { isNil } from '@web-archive/shared/utils'
 import toast from 'react-hot-toast'
-import { Switch } from '@web-archive/shared/components/switch'
 import FolderSelectWithCache, { getLastChooseFolderId } from './FolderSelectWithCache'
 import TagInputWithCache from './TagInputWithCache'
 import { getSingleFileSetting } from '~/popup/utils/singleFile'
@@ -54,7 +53,6 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
     folderId: getLastChooseFolderId(),
     screenshot: undefined as undefined | string,
     bindTags: [] as string[],
-    isShowcased: false,
   })
 
   function handleChange(e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLSelectElement>) {
@@ -116,7 +114,6 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
         folderId: uploadPageData.folderId,
         screenshot: uploadPageData.screenshot,
         bindTags: uploadPageData.bindTags,
-        isShowcased: uploadPageData.isShowcased,
       },
     })
     toast.success('Add save page task success')
@@ -162,22 +159,6 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
           onChange={handleChange}
         >
         </Textarea>
-      </div>
-
-      <div className="flex flex-col space-y-2">
-        <Label
-          htmlFor="showcased"
-        >
-          Showcased
-        </Label>
-        <Switch
-          checked={uploadPageData.isShowcased}
-          onCheckedChange={value => setUploadPageData(prevData => ({
-            ...prevData,
-            isShowcased: value,
-          }))}
-        >
-        </Switch>
       </div>
 
       <div className="flex flex-col space-y-2">

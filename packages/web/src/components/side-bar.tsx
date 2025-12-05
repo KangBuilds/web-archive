@@ -1,4 +1,4 @@
-import { Archive, HomeIcon, LogOut, Moon, SquareLibrary, Sun, Trash2 } from 'lucide-react'
+import { Archive, HomeIcon, LogOut, Moon, Sun, Trash2 } from 'lucide-react'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@web-archive/shared/components/side-bar'
 import { useEffect, useState } from 'react'
 import { isNumberString } from '@web-archive/shared/utils'
@@ -97,22 +97,6 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
 
       <SidebarFooter className="p-3 border-t border-border/40">
         <SidebarMenu className="space-y-0.5">
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className={`w-full justify-start h-9 px-3 rounded-lg text-sm ${
-                pathname.startsWith('/showcase')
-                  ? 'bg-primary/10 text-primary font-medium'
-                  : 'hover:bg-accent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Link to="/showcase/folder">
-                <SquareLibrary className="w-4 h-4 mr-3" />
-                Showcase
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild

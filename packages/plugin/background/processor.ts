@@ -15,7 +15,6 @@ export interface SeriableSingleFileTask {
   pageDesc: string
   folderId: string
   bindTags: string[]
-  isShowcased: boolean
   startTimeStamp: number
   endTimeStamp?: number
   errorMessage?: string
@@ -80,7 +79,6 @@ type CreateTaskOptions = {
     folderId: string
     screenshot?: string
     bindTags: string[]
-    isShowcased: boolean
   }
   singleFileSetting: SingleFileSetting
 }
@@ -95,7 +93,7 @@ async function scrapePageData(singleFileSetting: SingleFileSetting, tabId: numbe
 }
 
 async function uploadPageData(pageForm: CreateTaskOptions['pageForm'] & { content: string }) {
-  const { href, title, pageDesc, folderId, screenshot, content, isShowcased } = pageForm
+  const { href, title, pageDesc, folderId, screenshot, content } = pageForm
 
   const form = new FormData()
   form.append('title', title)
@@ -104,7 +102,6 @@ async function uploadPageData(pageForm: CreateTaskOptions['pageForm'] & { conten
   form.append('folderId', folderId)
   form.append('bindTags', JSON.stringify(pageForm.bindTags))
   form.append('pageFile', new Blob([content], { type: 'text/html' }))
-  form.append('isShowcased', isShowcased ? '1' : '0')
   if (screenshot) {
     form.append('screenshot', base64ToBlob(screenshot, 'image/webp'))
   }
@@ -119,7 +116,7 @@ async function uploadPageData(pageForm: CreateTaskOptions['pageForm'] & { conten
 
 async function createAndRunTask(options: CreateTaskOptions) {
   const { singleFileSetting, tabId, pageForm } = options
-  const { href, title, pageDesc, folderId, screenshot, bindTags, isShowcased } = pageForm
+  const { href, title, pageDesc, folderId, screenshot, bindTags } = pageForm
 
   const uuid = crypto.randomUUID()
   const task: SeriableSingleFileTask = {
@@ -132,7 +129,6 @@ async function createAndRunTask(options: CreateTaskOptions) {
     pageDesc,
     folderId,
     bindTags,
-    isShowcased,
     startTimeStamp: Date.now(),
   }
 
@@ -145,7 +141,7 @@ async function createAndRunTask(options: CreateTaskOptions) {
     task.status = 'uploading'
     await saveTask(task)
 
-    await uploadPageData({ content, href, title, pageDesc, folderId, screenshot, bindTags, isShowcased })
+    await uploadPageData({ content, href, title, pageDesc, folderId, screenshot, bindTags })
     task.status = 'done'
     task.endTimeStamp = Date.now()
     await saveTask(task)
