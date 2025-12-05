@@ -96,57 +96,23 @@ async function queryPageByUrl(DB: D1Database, pageUrl: string) {
   return result.results
 }
 
-async function selectDeletedPageTotalCount(DB: D1Database) {
-  const sql = `
-    SELECT COUNT(*) as count FROM pages
-    WHERE isDeleted = 1
-  `
-  const result = await DB.prepare(sql).first()
-  return result.count
-}
+async function deletePageById(DB: D1Database, BUCKET: R2Bucket, pageId: number) {
+  // Get page to find associated files
+  const page = await getPageById(DB, { id: pageId })
+  if (!page) {
+    return false
+  }
 
-async function queryDeletedPage(DB: D1Database) {
-  const sql = `
-    SELECT
-      id,
-      title,
-      contentUrl,
-      pageUrl,
-      folderId,
-      pageDesc,
-      createdAt,
-      updatedAt,
-      deletedAt
-    FROM pages
-    WHERE isDeleted = 1
-    ORDER BY updatedAt DESC
-  `
-  const result = await DB.prepare(sql).all<Page>()
-  return result.results
-}
+  // Delete associated files from bucket
+  const filesToDelete = [page.screenshotId, page.contentUrl].filter(isNotNil)
+  if (filesToDelete.length > 0) {
+    await removeBucketFile(BUCKET, filesToDelete)
+  }
 
-async function deletePageById(DB: D1Database, pageId: number) {
-  const sql = `
-    UPDATE pages
-    SET 
-      isDeleted = 1,
-      deletedAt = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `
+  // Permanently delete the page from database
+  const sql = `DELETE FROM pages WHERE id = ?`
   const result = await DB.prepare(sql).bind(pageId).run()
   return result.success
-}
-
-async function restorePage(DB: D1Database, id: number) {
-  const sql = `
-    UPDATE pages
-    SET 
-      isDeleted = 0,
-      deletedAt = NULL
-    WHERE id = ?
-  `
-  const result = await DB.prepare(sql).bind(id).run()
-  return result.success && result.meta.changes > 0
 }
 
 async function getPageById(DB: D1Database, options: { id: number, isDeleted?: boolean }) {
@@ -183,27 +149,6 @@ async function insertPage(DB: D1Database, pageOptions: InsertPageOptions) {
     .bind(title, pageDesc, pageUrl, contentUrl, folderId, screenshotId, isShowcased)
     .run()
   return insertResult.meta.last_row_id
-}
-
-async function clearDeletedPage(DB: D1Database, BUCKET: R2Bucket) {
-  const pageListSql = `
-    SELECT * FROM pages WHERE isDeleted = 1
-  `
-  const deletePageResult = await DB.prepare(pageListSql).all<Page>()
-  if (deletePageResult.error) {
-    return false
-  }
-  const deleteBucketKeys = deletePageResult.results
-    .map(page => [page.screenshotId, page.contentUrl])
-    .flat()
-    .filter(isNotNil)
-  await removeBucketFile(BUCKET, deleteBucketKeys)
-
-  const sql = `
-    DELETE FROM pages WHERE isDeleted = 1
-  `
-  const result = await DB.prepare(sql).run()
-  return result.success
 }
 
 async function queryRecentSavePage(DB: D1Database) {
@@ -255,13 +200,9 @@ export {
   selectPageTotalCount,
   queryPage,
   queryPageByUrl,
-  selectDeletedPageTotalCount,
-  queryDeletedPage,
   deletePageById,
-  restorePage,
   getPageById,
   insertPage,
-  clearDeletedPage,
   queryRecentSavePage,
   selectAllPageCount,
   updatePage,

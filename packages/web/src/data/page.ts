@@ -39,21 +39,6 @@ function queryPage(body: {
   })
 }
 
-function queryDeletedPage(): Promise<Page[]> {
-  return fetcher<Page[]>('/pages/query_deleted', {
-    method: 'POST',
-  })
-}
-
-function restorePage(id: number): Promise<boolean> {
-  return fetcher<boolean>('/pages/restore_page', {
-    method: 'POST',
-    body: {
-      id,
-    },
-  })
-}
-
 function updatePage(body: {
   id: number
   folderId: number
@@ -65,12 +50,6 @@ function updatePage(body: {
   return fetcher<Page>('/pages/update_page', {
     method: 'PUT',
     body,
-  })
-}
-
-function clearDeletedPage(): Promise<boolean> {
-  return fetcher<boolean>('/pages/clear_deleted', {
-    method: 'DELETE',
   })
 }
 
@@ -109,9 +88,6 @@ export {
   deletePage,
   queryPage,
   updatePage,
-  queryDeletedPage,
-  restorePage,
-  clearDeletedPage,
   getPageScreenshot,
   getRecentSavePage,
   queryAllPageIds,

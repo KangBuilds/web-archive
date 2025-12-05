@@ -9,7 +9,6 @@ export type Path =
   | `/folder/:slug`
   | `/login`
   | `/page/:slug`
-  | `/trash`
 
 export type Params = {
   '/error/:slug': { slug: string }

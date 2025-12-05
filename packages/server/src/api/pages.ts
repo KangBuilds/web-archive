@@ -4,8 +4,7 @@ import { isNil, isNotNil, isNumberString } from '@web-archive/shared/utils'
 import { z } from 'zod'
 import type { HonoTypeUserInformation } from '~/constants/binding'
 import result from '~/utils/result'
-import { clearDeletedPage, deletePageById, getPageById, insertPage, queryAllPageIds, queryDeletedPage, queryPage, queryPageByUrl, queryRecentSavePage, restorePage, selectPageTotalCount, updatePage } from '~/model/page'
-import { getFolderById, restoreFolder } from '~/model/folder'
+import { deletePageById, getPageById, insertPage, queryAllPageIds, queryPage, queryPageByUrl, queryRecentSavePage, selectPageTotalCount, updatePage } from '~/model/page'
 import { getFileFromBucket, saveFileToBucket } from '~/utils/file'
 import { updateBindPageByTagName } from '~/model/tag'
 
@@ -224,7 +223,7 @@ app.delete(
   async (c) => {
     const { id } = c.req.valid('query')
 
-    if (await deletePageById(c.env.DB, id)) {
+    if (await deletePageById(c.env.DB, c.env.BUCKET, id)) {
       return c.json(result.success({ id }))
     }
 
@@ -282,69 +281,6 @@ app.put(
       return c.json(result.success(null))
 
     return c.json(result.error(500, 'Failed to update page'))
-  },
-)
-
-app.post(
-  '/query_deleted',
-  async (c) => {
-    const pages = await queryDeletedPage(c.env.DB)
-    return c.json(result.success(pages))
-  },
-)
-
-app.post(
-  '/restore_page',
-  validator('json', (value, c) => {
-    if (isNil(value.id) || !isNumberString(value.id)) {
-      return c.json(result.error(400, 'ID is required and should be a number'))
-    }
-
-    if (isNotNil(value.folderId) && !isNumberString(value.folderId)) {
-      return c.json(result.error(400, 'Folder ID should be a number'))
-    }
-
-    return {
-      id: Number(value.id),
-      folderId: isNotNil(value.folderId) ? Number(value.folderId) : undefined,
-    }
-  }),
-  async (c) => {
-    const { id, folderId } = c.req.valid('json')
-    let pageFolderId = folderId
-    if (isNil(pageFolderId)) {
-      const page = await getPageById(c.env.DB, { id })
-      if (isNil(page)) {
-        return c.json(result.error(500, 'Page not found'))
-      }
-
-      pageFolderId = page.folderId
-    }
-    const folder = await getFolderById(c.env.DB, { id: pageFolderId })
-    if (isNil(folder)) {
-      return c.json(result.error(500, 'Folder not found'))
-    }
-    if (folder.isDeleted) {
-      const restoreFolderResult = await restoreFolder(c.env.DB, pageFolderId)
-      if (!restoreFolderResult) {
-        return c.json(result.error(500, 'Failed to restore folder'))
-      }
-    }
-
-    if (await restorePage(c.env.DB, id)) {
-      return c.json(result.success(null))
-    }
-
-    return c.json(result.error(500, 'Failed to restore page'))
-  },
-)
-
-app.delete(
-  '/clear_deleted',
-  async (c) => {
-    if (await clearDeletedPage(c.env.DB, c.env.BUCKET)) {
-      return c.json(result.success(null))
-    }
   },
 )
 
