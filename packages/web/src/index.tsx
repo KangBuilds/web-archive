@@ -11,18 +11,13 @@ function Routes() {
   const [view, setView] = useLocalStorageState('view', {
     defaultValue: 'card',
   })
-  const [readMode, setReadMode] = useLocalStorageState('readMode', {
-    defaultValue: false,
-  })
 
   return (
     <AppContext.Provider value={
       useMemo(() => ({
         view: view as 'card' | 'list',
         setView,
-        readMode: readMode as boolean,
-        setReadMode,
-      }), [view, setView, readMode, setReadMode])
+      }), [view, setView])
     }
     >
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">

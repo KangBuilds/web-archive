@@ -1,15 +1,13 @@
 import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
-import { ArrowLeft, BookOpen, Download, Monitor, Trash2 } from 'lucide-react'
-import { useContext, useEffect } from 'react'
+import { ArrowLeft, Download, Trash2 } from 'lucide-react'
+import { useEffect } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
 import IframePageContent from '~/components/iframe-page-content'
 import LoadingWrapper from '~/components/loading-wrapper'
-import ReadabilityPageContent from '~/components/readability-page-content'
 import { deletePage, getPageDetail } from '~/data/page'
 import { useObjectURL } from '~/hooks/useObjectUrl'
 import { useNavigate, useParams } from '~/router'
-import AppContext from '~/store/app'
 
 async function getPageContent(pageId: string | undefined) {
   if (!pageId)
@@ -55,11 +53,8 @@ function ArchivePage() {
   }
 
   const { objectURL: pageContentUrl, setObject } = useObjectURL(null)
-  const { data: pageHtml, loading: pageLoading } = useRequest(
-    async () => {
-      const pageHtml = await getPageContent(slug)
-      return pageHtml
-    },
+  const { loading: pageLoading } = useRequest(
+    () => getPageContent(slug),
     {
       onSuccess: (pageHtml) => {
         setObject(pageHtml)
@@ -82,8 +77,6 @@ function ArchivePage() {
     await runDeletePage(pageDetail)
     goBack()
   }
-
-  const { readMode, setReadMode } = useContext(AppContext)
 
   return (
     <main className="h-screen w-screen lg:w-full flex flex-col bg-background">
@@ -109,51 +102,6 @@ function ArchivePage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* View mode toggle */}
-          <div className="flex items-center bg-secondary/50 rounded-lg p-0.5">
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 px-3 rounded-md transition-all ${
-                      readMode
-                        ? 'bg-background shadow-sm text-foreground'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                    onClick={() => setReadMode(true)}
-                  >
-                    <BookOpen className="w-4 h-4 mr-1.5" />
-                    <span className="text-xs font-medium">Read</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Open Read mode</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider delayDuration={200}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`h-8 px-3 rounded-md transition-all ${
-                      !readMode
-                        ? 'bg-background shadow-sm text-foreground'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                    onClick={() => setReadMode(false)}
-                  >
-                    <Monitor className="w-4 h-4 mr-1.5" />
-                    <span className="text-xs font-medium">Original</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Open Iframe mode</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
           {/* Download button */}
           <TooltipProvider delayDuration={200}>
             <Tooltip>
@@ -198,17 +146,7 @@ function ArchivePage() {
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         <LoadingWrapper loading={pageLoading}>
-          {readMode
-            ? (
-              <div className="h-full overflow-auto">
-                <div className="max-w-3xl mx-auto px-6 py-8">
-                  <ReadabilityPageContent pageHtml={pageHtml || ''} />
-                </div>
-              </div>
-              )
-            : (
-              <IframePageContent pageContentUrl={pageContentUrl || ''} />
-              )}
+          <IframePageContent pageContentUrl={pageContentUrl || ''} />
         </LoadingWrapper>
       </div>
     </main>
