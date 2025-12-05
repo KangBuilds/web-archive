@@ -10,7 +10,6 @@ import { useRequest } from 'ahooks'
 import { isNil } from '@web-archive/shared/utils'
 import toast from 'react-hot-toast'
 import { Switch } from '@web-archive/shared/components/switch'
-import { useTranslation } from 'react-i18next'
 import FolderSelectWithCache, { getLastChooseFolderId } from './FolderSelectWithCache'
 import TagInputWithCache from './TagInputWithCache'
 import { getSingleFileSetting } from '~/popup/utils/singleFile'
@@ -96,16 +95,15 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
     setActivePage('home')
   }
 
-  const { t } = useTranslation()
   async function handleSavePage() {
     // todo await folderlist to check folder extists?
     if (isNil(uploadPageData.folderId)) {
-      toast.error(t('folder-required'))
+      toast.error('Please select a folder')
       return
     }
     const tab = await getCurrentTab()
     if (isNil(tab.id)) {
-      toast.error(t('get-current-tab-info-failed'))
+      toast.error('Can not get current tab info')
       return
     }
     await sendMessage('add-save-page-task', {
@@ -121,14 +119,14 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
         isShowcased: uploadPageData.isShowcased,
       },
     })
-    toast.success(t('add-save-page-task-success'))
+    toast.success('Add save page task success')
     setActivePage('home')
   }
 
   if (isInitPageData) {
     return (
       <LoadingPage
-        loadingText={t('scraping-page-data')}
+        loadingText="Scraping Page Data..."
       />
     )
   }
@@ -139,7 +137,7 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
         <Label
           htmlFor="title"
         >
-          {t('title')}
+          Title
         </Label>
         <Input
           type="text"
@@ -154,7 +152,7 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
         <Label
           htmlFor="pageDesc"
         >
-          {t('page-desc')}
+          Page Description
         </Label>
         <Textarea
           id="pageDesc"
@@ -183,7 +181,7 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
       </div>
 
       <div className="flex flex-col space-y-2">
-        <Label>{t('tag')}</Label>
+        <Label>Tag</Label>
         <TagInputWithCache
           onValueChange={handleTagSelect}
         >
@@ -194,7 +192,7 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
         <Label
           htmlFor="folderId"
         >
-          {t('folder')}
+          Folder
         </Label>
         <FolderSelectWithCache
           value={uploadPageData.folderId}
@@ -208,13 +206,13 @@ function UploadPageForm({ setActivePage }: UploadPageFormProps) {
           onClick={handleCancel}
           variant="outline"
         >
-          {t('cancel')}
+          Cancel
         </Button>
         <Button
           disabled={isNil(uploadPageData.folderId)}
           onClick={handleSavePage}
         >
-          {t('confirm')}
+          Confirm
         </Button>
       </div>
     </div>

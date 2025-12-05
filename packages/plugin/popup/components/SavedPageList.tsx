@@ -2,7 +2,6 @@ import { isNil } from '@web-archive/shared/utils'
 import { sendMessage } from 'webext-bridge/popup'
 import { useRequest } from 'ahooks'
 import { LoaderCircle } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import { getCurrentTab } from '../utils/tab'
 
 async function getSavedPages() {
@@ -25,7 +24,6 @@ function formatTime(date: string) {
 }
 
 function SavedPageList() {
-  const { t } = useTranslation()
   const { data: savedPages, loading } = useRequest(getSavedPages)
 
   async function handlePageClick(pageId: number) {
@@ -37,7 +35,7 @@ function SavedPageList() {
     return (
       <div className="w-full h-8 bg-secondary rounded flex items-center justify-center">
         <LoaderCircle size={14} className="animate-spin mr-2"></LoaderCircle>
-        <div>{t('loading-archived-list')}</div>
+        <div>Loading Archived List</div>
       </div>
     )
   }
@@ -45,7 +43,7 @@ function SavedPageList() {
   if (!savedPages?.length) {
     return (
       <div className="w-full h-8 bg-secondary rounded flex items-center justify-center">
-        <div className="text-secondary-foreground select-none">{t('no-archived-pages')}</div>
+        <div className="text-secondary-foreground select-none">No Archived Pages</div>
       </div>
     )
   }

@@ -2,7 +2,6 @@ import { Button } from '@web-archive/shared/components/button'
 import { Input } from '@web-archive/shared/components/input'
 import { Search, X } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import ViewToggle from './view-toggle'
 
 interface SearchBarProps {
@@ -13,7 +12,6 @@ interface SearchBarProps {
 }
 
 function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarProps) {
-  const { t } = useTranslation()
   const location = useLocation()
   const match = location.pathname.startsWith('/folder')
 
@@ -44,7 +42,7 @@ function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarPr
             </div>
             <Input
               className="w-56 lg:w-72 h-9 pl-9 pr-8 bg-secondary/50 border-transparent hover:border-border focus:border-primary focus:bg-background transition-all text-sm"
-              placeholder={t('search-placeholder')}
+              placeholder="Search in current folder"
               value={keyword}
               showRing={false}
               onChange={e => setKeyword(e.target.value)}
@@ -64,7 +62,7 @@ function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarPr
             size="sm"
             className="h-9 px-4 font-medium shadow-none"
           >
-            {t('search')}
+            Search
           </Button>
         </div>
       </div>

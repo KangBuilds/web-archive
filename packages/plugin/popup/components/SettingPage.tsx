@@ -3,14 +3,11 @@ import { useState } from 'react'
 import { Checkbox } from '@web-archive/shared/components/checkbox'
 import { Label } from '@web-archive/shared/components/label'
 import { Input } from '@web-archive/shared/components/input'
-import { useTranslation } from 'react-i18next'
-import LanguageCombobox from '@web-archive/shared/components/language-combobox'
 import { getSingleFileSetting, setSingleFileSetting } from '../utils/singleFile'
 import type { PageType } from '~/popup/PopupPage'
 import type { SingleFileSetting } from '~/utils/singleFile'
 
 function SettingPage({ setActivePage }: { setActivePage: (tab: PageType) => void }) {
-  const { t } = useTranslation()
   return (
     <div className="w-80 space-y-2 p-4">
       <div className="h-6 mb-2 items-center flex space-x-3">
@@ -21,12 +18,6 @@ function SettingPage({ setActivePage }: { setActivePage: (tab: PageType) => void
         >
         </ArrowLeft>
       </div>
-      <div className="space-x-3">
-        <span className="text-lg font-semibold mb-3 ">
-          {t('language')}
-        </span>
-        <LanguageCombobox></LanguageCombobox>
-      </div>
       <div>
         <SingleFileSettings></SingleFileSettings>
       </div>
@@ -35,7 +26,6 @@ function SettingPage({ setActivePage }: { setActivePage: (tab: PageType) => void
 }
 
 function SingleFileSettings() {
-  const { t } = useTranslation()
   const [settings, setSettings] = useState<SingleFileSetting>(getSingleFileSetting())
 
   function handleChange(checked: boolean | string, key: keyof SingleFileSetting) {
@@ -54,101 +44,101 @@ function SingleFileSettings() {
 
   return (
     <div>
-      <div className="text-lg font-semibold mb-3">{t('singlefile-settings')}</div>
+      <div className="text-lg font-semibold mb-3">Single File Settings</div>
       <div className="flex flex-col space-y-3">
         <SettingCheckBox
           id="removeHiddenElements"
           checked={settings.removeHiddenElements}
           onCheckedChange={checked => handleChange(checked, 'removeHiddenElements')}
-          label={t('remove-hidden-elements')}
+          label="Remove Hidden Elements"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeUnusedStyles"
           checked={settings.removeUnusedStyles}
           onCheckedChange={checked => handleChange(checked, 'removeUnusedStyles')}
-          label={t('remove-unused-styles')}
+          label="Remove Unused Styles"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeUnusedFonts"
           checked={settings.removeUnusedFonts}
           onCheckedChange={checked => handleChange(checked, 'removeUnusedFonts')}
-          label={t('remove-unused-fonts')}
+          label="Remove Unused Fonts"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeImports"
           checked={settings.removeImports}
           onCheckedChange={checked => handleChange(checked, 'removeImports')}
-          label={t('remove-imports')}
+          label="Remove Imports"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="blockScripts"
           checked={settings.blockScripts}
           onCheckedChange={checked => handleChange(checked, 'blockScripts')}
-          label={t('block-scripts')}
+          label="Block Scripts"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="blockAudios"
           checked={settings.blockAudios}
           onCheckedChange={checked => handleChange(checked, 'blockAudios')}
-          label={t('block-audios')}
+          label="Block Audios"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="blockVideos"
           checked={settings.blockVideos}
           onCheckedChange={checked => handleChange(checked, 'blockVideos')}
-          label={t('block-videos')}
+          label="Block Videos"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="compressHTML"
           checked={settings.compressHTML}
           onCheckedChange={checked => handleChange(checked, 'compressHTML')}
-          label={t('compress-HTML')}
+          label="Compress HTML"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeAlternativeFonts"
           checked={settings.removeAlternativeFonts}
           onCheckedChange={checked => handleChange(checked, 'removeAlternativeFonts')}
-          label={t('remove-alternative-fonts')}
+          label="Remove Alternative Fonts"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeAlternativeMedias"
           checked={settings.removeAlternativeMedias}
           onCheckedChange={checked => handleChange(checked, 'removeAlternativeMedias')}
-          label={t('remove-alternative-medias')}
+          label="Remove Alternative Medias"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="removeAlternativeImages"
           checked={settings.removeAlternativeImages}
           onCheckedChange={checked => handleChange(checked, 'removeAlternativeImages')}
-          label={t('remove-alternative-images')}
+          label="Remove Alternative Images"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="groupDuplicateImages"
           checked={settings.groupDuplicateImages}
           onCheckedChange={checked => handleChange(checked, 'groupDuplicateImages')}
-          label={t('group-duplicate-images')}
+          label="Group Duplicate Images"
         >
         </SettingCheckBox>
         <SettingCheckBox
           id="loadDeferredImages"
           checked={settings.loadDeferredImages ?? true}
           onCheckedChange={checked => handleChange(checked, 'loadDeferredImages')}
-          label={t('load-deferred-images')}
+          label="Load Deferred Images"
         >
         </SettingCheckBox>
         <div className="space-y-2">
-          <Label>{t('load-deferred-images-max-idle-time')}</Label>
+          <Label>Load Deferred Images Max Idle Time</Label>
           <Input
             type="number"
             value={settings.loadDeferredImagesMaxIdleTime ?? 1500}

@@ -3,14 +3,12 @@ import { useRequest } from 'ahooks'
 import { AlertTriangle, ArchiveRestore, Trash2 } from 'lucide-react'
 import { useEffect } from 'react'
 import toast from 'react-hot-toast'
-import { useTranslation } from 'react-i18next'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
 import EmptyWrapper from '~/components/empty-wrapper'
 import ListView from '~/components/list-view'
 import { clearDeletedPage, queryDeletedPage, restorePage } from '~/data/page'
 
 function Trash() {
-  const { t } = useTranslation()
   const { data, run: fetchPage, loading } = useRequest(queryDeletedPage, {
     manual: true,
   })
@@ -18,7 +16,7 @@ function Trash() {
   const { run: runRestorePage, loading: restoring } = useRequest(restorePage, {
     manual: true,
     onSuccess: () => {
-      toast.success(t('restore-page-success'))
+      toast.success('Restore page success')
       fetchPage()
     },
   })
@@ -26,13 +24,13 @@ function Trash() {
   const { run: runClearDeletedPage, loading: clearing } = useRequest(clearDeletedPage, {
     manual: true,
     onSuccess: () => {
-      toast.success(t('clear-success'))
+      toast.success('Clear deleted page success')
       fetchPage()
     },
   })
 
   const handleClearAll = () => {
-    if (window.confirm(t('clear-confirm'))) {
+    if (window.confirm('Are you sure to clear all deleted pages?')) {
       runClearDeletedPage()
     }
   }
@@ -53,7 +51,7 @@ function Trash() {
               <Trash2 className="w-4 h-4 text-destructive" />
             </div>
             <div>
-              <h1 className="font-serif text-lg font-semibold text-foreground">{t('trash')}</h1>
+              <h1 className="font-serif text-lg font-semibold text-foreground">Trash</h1>
               <p className="text-xs text-muted-foreground">
                 {loading ? 'Loading...' : `${itemCount} item${itemCount !== 1 ? 's' : ''}`}
               </p>
@@ -69,7 +67,7 @@ function Trash() {
               className="h-9"
             >
               <AlertTriangle className="w-4 h-4 mr-2" />
-              {clearing ? 'Clearing...' : t('clear-all')}
+              {clearing ? 'Clearing...' : 'Clear All'}
             </Button>
           )}
         </div>

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { isNumberString } from '@web-archive/shared/utils'
 import { useLocation } from 'react-router-dom'
 import { ScrollArea } from '@web-archive/shared/components/scroll-area'
-import { useTranslation } from 'react-i18next'
 import SettingDialog from './setting-dialog'
 import SidebarFolderMenu from './side-bar-folder-menu'
 import SidebarTagMenu from './side-bar-tag-menu'
@@ -16,7 +15,6 @@ interface SidebarProps {
 }
 
 function Component({ selectedTag, setSelectedTag }: SidebarProps) {
-  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const [openedFolder, setOpenedFolder] = useState<number | null>(null)
@@ -72,7 +70,7 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
                 >
                   <Link to="/">
                     <HomeIcon className="w-4 h-4 mr-3" />
-                    <span>{t('home')}</span>
+                    <span>Home</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -120,7 +118,7 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
               className="w-full justify-start h-9 px-3 rounded-lg text-sm hover:bg-accent text-muted-foreground hover:text-foreground"
             >
               <Settings className="w-4 h-4 mr-3" />
-              {t('settings')}
+              Settings
             </SidebarMenuButton>
           </SidebarMenuItem>
 
@@ -135,7 +133,7 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
             >
               <Link to="/trash">
                 <Trash2 className="w-4 h-4 mr-3" />
-                {t('trash')}
+                Trash
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -149,7 +147,7 @@ function Component({ selectedTag, setSelectedTag }: SidebarProps) {
               className="w-full justify-start h-9 px-3 rounded-lg text-sm hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
             >
               <LogOut className="w-4 h-4 mr-3" />
-              {t('logout')}
+              Logout
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

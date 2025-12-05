@@ -2,7 +2,6 @@ import { Button } from '@web-archive/shared/components/button'
 import { useRequest } from 'ahooks'
 import { ArrowLeft, BookOpen, Download, Monitor, Trash2 } from 'lucide-react'
 import { useContext, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
 import IframePageContent from '~/components/iframe-page-content'
 import LoadingWrapper from '~/components/loading-wrapper'
@@ -27,7 +26,6 @@ async function getPageContent(pageId: string | undefined) {
 }
 
 function ArchivePage() {
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const { slug } = useParams('/page/:slug')
 
@@ -77,7 +75,7 @@ function ArchivePage() {
   )
 
   const handleDeletePage = async () => {
-    if (!window.confirm(t('delete-this-page-confirm')))
+    if (!window.confirm('Are you sure you want to delete this page?'))
       return
     if (!pageDetail)
       return
@@ -130,7 +128,7 @@ function ArchivePage() {
                     <span className="text-xs font-medium">Read</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('open-read-mode')}</TooltipContent>
+                <TooltipContent>Open Read mode</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -151,7 +149,7 @@ function ArchivePage() {
                     <span className="text-xs font-medium">Original</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('open-iframe-mode')}</TooltipContent>
+                <TooltipContent>Open Iframe mode</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -170,11 +168,11 @@ function ArchivePage() {
                     className="h-9 px-3"
                   >
                     <Download className="w-4 h-4 mr-1.5" />
-                    <span className="hidden sm:inline text-sm">{t('download')}</span>
+                    <span className="hidden sm:inline text-sm">Download</span>
                   </Button>
                 </a>
               </TooltipTrigger>
-              <TooltipContent>{t('download')}</TooltipContent>
+              <TooltipContent>Download</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -191,7 +189,7 @@ function ArchivePage() {
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{t('delete-page')}</TooltipContent>
+              <TooltipContent>Delete This Page</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

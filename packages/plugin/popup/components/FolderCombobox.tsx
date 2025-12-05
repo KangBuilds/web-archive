@@ -15,7 +15,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@web-archive/shared/components/popover'
-import { useTranslation } from 'react-i18next'
 
 interface ComboboxProps {
   value?: string
@@ -24,7 +23,6 @@ interface ComboboxProps {
 }
 
 function FolderCombobox({ value, onValueChange, options }: ComboboxProps) {
-  const { t } = useTranslation()
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -38,14 +36,14 @@ function FolderCombobox({ value, onValueChange, options }: ComboboxProps) {
         >
           {value
             ? options.find(option => option.value === value)?.label
-            : t('select-folder-placeholder')}
+            : 'Select a folder'}
           {open ? <ChevronDown size={16} className="transform rotate-180 opacity-50" /> : <ChevronDown size={16} className="opacity-50" />}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[14.5rem]">
         <Command>
           <CommandList className="h-48 scrollbar-hide">
-            <CommandEmpty>{t('no-folder-found')}</CommandEmpty>
+            <CommandEmpty>No Folder Found.</CommandEmpty>
             <CommandGroup>
               {options.map(option => (
                 <CommandItem

@@ -5,7 +5,6 @@ import { ArrowLeft, Check, ClockAlert, Eraser, LoaderCircle } from 'lucide-react
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@web-archive/shared/components/tooltip'
 import Browser from 'webextension-polyfill'
 import { Button } from '@web-archive/shared/components/button'
-import { useTranslation } from 'react-i18next'
 import type { PageType } from '../PopupPage'
 import type { SeriableSingleFileTask } from '~/background/processor'
 
@@ -42,7 +41,6 @@ function HistoryTaskList({ setActivePage }: { setActivePage: (tab: PageType) => 
 }
 
 function ClearHistoryTaskListButton() {
-  const { t } = useTranslation()
   function handleClick() {
     sendMessage('clear-finished-task-list', {})
   }
@@ -60,7 +58,7 @@ function ClearHistoryTaskListButton() {
           </Button>
         </TooltipTrigger>
         <TooltipContent side="left" sideOffset={20}>
-          {t('clear-finished-task-list')}
+          Clear finished history task list
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -84,14 +82,21 @@ function TaskListItem({ task }: { task: SeriableSingleFileTask }) {
   )
 }
 
+const statusTextMap: Record<string, string> = {
+  init: 'Init',
+  scraping: 'Scraping page',
+  uploading: 'Uploading to server',
+  done: 'Done',
+  failed: 'Failed',
+}
+
 function TaskDetailText({ task }: { task: SeriableSingleFileTask }) {
-  const { t } = useTranslation()
   const taskRunningTime = Date.now() - task.startTimeStamp
   const shouldShowRunningTimeText = task.status !== 'done' && task.status !== 'failed'
   const runningTimeText = shouldShowRunningTimeText ? `(${(taskRunningTime / 1000).toFixed(0)}s)` : ''
 
-  const statusText = t(`task-${task.status}`)
-  const errorText = task.errorMessage ? `${task.errorMessage}` : 'Uknown error'
+  const statusText = statusTextMap[task.status] || task.status
+  const errorText = task.errorMessage ? `${task.errorMessage}` : 'Unknown error'
 
   let renderText = statusText
   if (task.status === 'failed') {

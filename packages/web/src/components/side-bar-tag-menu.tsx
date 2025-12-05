@@ -8,7 +8,6 @@ import { useRequest } from 'ahooks'
 import { ChevronDown, Pencil, TagIcon, Trash } from 'lucide-react'
 import { useContext, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useTranslation } from 'react-i18next'
 import EditTagDialog from './edit-tag-dialog'
 import { deleteTag } from '~/data/tag'
 import TagContext from '~/store/tag'
@@ -29,7 +28,6 @@ interface TagBadgeProps {
 }
 
 function TagBadge({ tag, isSelected, onClick, onDelete, onEdit }: TagBadgeProps) {
-  const { t } = useTranslation()
   return (
     <ContextMenu>
       <ContextMenuTrigger>
@@ -54,14 +52,14 @@ function TagBadge({ tag, isSelected, onClick, onDelete, onEdit }: TagBadgeProps)
           onClick={onEdit}
         >
           <Pencil className="w-3.5 h-3.5" />
-          {t('edit')}
+          Edit
         </ContextMenuItem>
         <ContextMenuItem
           className="flex items-center gap-2 cursor-pointer text-sm text-destructive focus:text-destructive"
           onClick={onDelete}
         >
           <Trash className="w-3.5 h-3.5" />
-          {t('delete')}
+          Delete
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
@@ -69,7 +67,6 @@ function TagBadge({ tag, isSelected, onClick, onDelete, onEdit }: TagBadgeProps)
 }
 
 function SidebarTagMenu({ selectedTag, setSelectedTag, selectedFolder }: SidebarTagMenuProps) {
-  const { t } = useTranslation()
   const { tagCache: tags, refreshTagCache } = useContext(TagContext)
   const [isTagsCollapseOpen, setIsTagsCollapseOpen] = useState(false)
 
@@ -129,7 +126,7 @@ function SidebarTagMenu({ selectedTag, setSelectedTag, selectedFolder }: Sidebar
           <SidebarMenuButton className="w-full justify-between h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent">
             <div className="flex items-center text-sm font-medium">
               <TagIcon className="mr-2.5 h-4 w-4" />
-              {t('tags')}
+              Tags
             </div>
             <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', isTagsCollapseOpen && 'rotate-180')} />
           </SidebarMenuButton>

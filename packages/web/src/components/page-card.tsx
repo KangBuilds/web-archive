@@ -9,7 +9,6 @@ import { useLocation } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { BadgeSpan } from '@web-archive/shared/components/badge'
 import { TooltipPortal } from '@radix-ui/react-tooltip'
-import { useTranslation } from 'react-i18next'
 import ScreenshotView from './screenshot-view'
 import { updatePageShowcase } from '~/data/page'
 import CardEditDialog from '~/components/card-edit-dialog'
@@ -17,7 +16,6 @@ import TagContext from '~/store/tag'
 import { Link } from '~/router'
 
 function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) => void }) {
-  const { t } = useTranslation()
   const { tagCache, refreshTagCache } = useContext(TagContext)
   const bindTags = tagCache?.filter(tag => tag.pageIds.includes(page.id)) ?? []
 
@@ -34,7 +32,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
   const handleDeletePage = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    if (window.confirm(t('delete-this-page-confirm'))) {
+    if (window.confirm('Are you sure you want to delete this page?')) {
       onPageDelete?.(page)
     }
   }
@@ -45,7 +43,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
     {
       manual: true,
       onSuccess() {
-        toast.success(t('success'))
+        toast.success('Success')
         setShowcaseState(showcaseState === 1 ? 0 : 1)
       },
     },
@@ -130,7 +128,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
-                  {t('edit-page')}
+                  Edit Page
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -150,7 +148,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
               </TooltipTrigger>
               <TooltipPortal>
                 <TooltipContent side="bottom">
-                  {t('open-original-link')}
+                  Open Original Link
                 </TooltipContent>
               </TooltipPortal>
             </Tooltip>
@@ -171,7 +169,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {t('delete-page')}
+                    Delete This Page
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -198,7 +196,7 @@ function Comp({ page, onPageDelete }: { page: Page, onPageDelete?: (page: Page) 
                   </TooltipTrigger>
                   <TooltipPortal>
                     <TooltipContent side="bottom">
-                      {showcaseState === 1 ? t('remove-from-showcase') : t('add-to-showcase')}
+                      {showcaseState === 1 ? 'Remove from Showcase' : 'Add to Showcase'}
                     </TooltipContent>
                   </TooltipPortal>
                 </Tooltip>

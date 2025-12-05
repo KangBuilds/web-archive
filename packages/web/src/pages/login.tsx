@@ -4,11 +4,9 @@ import { Button } from '@web-archive/shared/components/button'
 import { Input } from '@web-archive/shared/components/input'
 import toast, { Toaster } from 'react-hot-toast'
 import { Archive, Eye, EyeOff, Loader2 } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
 import router from '~/utils/router'
 
 export default function LoginPage() {
-  const { t } = useTranslation()
   const [key, setKey] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -16,7 +14,7 @@ export default function LoginPage() {
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (key.length < 8) {
-      toast.error(t('password-must-be-at-least-8-characters'))
+      toast.error('Password must be at least 8 characters')
       return
     }
     setLoading(true)
@@ -33,14 +31,14 @@ export default function LoginPage() {
           return
         }
         if (res.status === 201) {
-          toast.success(t('password-set-success-toast'))
+          toast.success('Admin password set, please use it login again')
           return
         }
         const json = await res.json()
         toast.error(json.error)
       })
       .catch(() => {
-        toast.error(t('something-went-wrong'))
+        toast.error('Something went wrong')
       })
       .finally(() => {
         setLoading(false)
@@ -106,7 +104,7 @@ export default function LoginPage() {
                 Welcome back
               </h2>
               <p className="text-sm text-muted-foreground">
-                {t('please-enter-your-key-to-login')}
+                Please enter your key to login
               </p>
             </div>
 
@@ -119,7 +117,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder={t('enter-your-password-at-least-8-characters')}
+                    placeholder="Enter your password, at least 8 characters"
                     value={key}
                     onChange={e => setKey(e.target.value)}
                     className="pr-10 h-11 bg-background border-border/60 focus:border-primary transition-colors"
@@ -143,11 +141,11 @@ export default function LoginPage() {
                   ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      {t('logging-in')}
+                      Logging in...
                     </span>
                     )
                   : (
-                      t('login')
+                      'Login'
                     )}
               </Button>
             </form>

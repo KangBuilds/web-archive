@@ -5,7 +5,6 @@ import { isNil } from '@web-archive/shared/utils'
 import { useRequest } from 'ahooks'
 import { useContext, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useTranslation } from 'react-i18next'
 import { updateTag } from '~/data/tag'
 import TagContext from '~/store/tag'
 
@@ -20,7 +19,6 @@ interface EditTagProps {
 }
 
 function EditTagDialog({ afterSubmit, open, setOpen, editTag }: EditTagProps) {
-  const { t } = useTranslation()
   const { tagCache } = useContext(TagContext)
   const [tagName, setTagName] = useState(editTag?.name ?? '')
   useEffect(() => {
@@ -32,7 +30,7 @@ function EditTagDialog({ afterSubmit, open, setOpen, editTag }: EditTagProps) {
       manual: true,
       onSuccess: () => {
         setOpen(false)
-        toast.success(t('tag-updated-successfully'))
+        toast.success('Tag updated successfully')
         afterSubmit()
       },
       onError: (error) => {
@@ -42,20 +40,20 @@ function EditTagDialog({ afterSubmit, open, setOpen, editTag }: EditTagProps) {
   )
   const handleSubmit = () => {
     if (tagName.length === 0) {
-      toast.error(t('tag-name-is-required'))
+      toast.error('Tag name is required')
       return
     }
     if (tagName === editTag?.name) {
       setOpen(false)
-      toast.success(t('tag-updated-successfully'))
+      toast.success('Tag updated successfully')
       return
     }
     if (isNil(editTag?.id)) {
-      toast.error(t('tag-id-is-required'))
+      toast.error('Tag id is required')
       return
     }
     if (tagCache?.find(tag => tag.name === tagName)) {
-      toast.error(t('tag-name-already-exists'))
+      toast.error('Tag name already exists')
       return
     }
     run({ id: editTag.id, name: tagName })
@@ -64,14 +62,14 @@ function EditTagDialog({ afterSubmit, open, setOpen, editTag }: EditTagProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
-        <DialogTitle>{t('edit-tag')}</DialogTitle>
+        <DialogTitle>Edit Tag</DialogTitle>
         <Input
           value={tagName}
           onChange={e => setTagName(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder={t('tag-name')}
+          placeholder="Tag Name"
         />
-        <Button onClick={handleSubmit}>{t('update')}</Button>
+        <Button onClick={handleSubmit}>Update</Button>
       </DialogContent>
     </Dialog>
   )

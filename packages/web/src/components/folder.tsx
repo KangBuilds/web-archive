@@ -1,7 +1,6 @@
 import { Folder as FolderIcon, FolderOpen as FolderOpenIcon, Pencil, Trash } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@web-archive/shared/components/context-menu'
-import { useTranslation } from 'react-i18next'
 
 interface FolderProps {
   id: number
@@ -13,7 +12,6 @@ interface FolderProps {
 }
 
 function Folder({ id, name, isOpen, onClick, onDelete, onEdit }: FolderProps) {
-  const { t } = useTranslation()
   function handleClick() {
     onClick?.(id)
   }
@@ -36,11 +34,11 @@ function Folder({ id, name, isOpen, onClick, onDelete, onEdit }: FolderProps) {
       <ContextMenuContent className="w-48">
         <ContextMenuItem className="flex items-center space-x-2 cursor-pointer" onClick={() => onEdit?.(id)}>
           <Pencil size={12} />
-          <div>{t('edit')}</div>
+          <div>Edit</div>
         </ContextMenuItem>
         <ContextMenuItem className="flex items-center space-x-2 cursor-pointer" onClick={() => onDelete?.(id)}>
           <Trash size={12} />
-          <div>{t('delete')}</div>
+          <div>Delete</div>
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

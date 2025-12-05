@@ -13,7 +13,6 @@ import { Button } from '@web-archive/shared/components/button'
 import { toast } from 'react-hot-toast'
 import { useOutletContext } from 'react-router-dom'
 import AutoCompleteTagInput from '@web-archive/shared/components/auto-complete-tag-input'
-import { useTranslation } from 'react-i18next'
 import LoadingWrapper from '~/components/loading-wrapper'
 import { getPageDetail, updatePage } from '~/data/page'
 import { getAllFolder } from '~/data/folder'
@@ -26,7 +25,6 @@ interface CardEditDialogProps {
 }
 
 function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
-  const { t } = useTranslation()
   const { handleSearch } = useOutletContext<{ handleSearch: () => void }>()
 
   const { data: folders, loading: foldersLoading, run: getAllFolderRun } = useRequest(getAllFolder, {
@@ -34,9 +32,9 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
   })
 
   const formSchema = z.object({
-    title: z.string().min(1, { message: t('title-is-required') }),
-    pageDesc: z.string().min(1, { message: t('description-is-required') }),
-    pageUrl: z.string().min(1, { message: t('page-url-is-required') }),
+    title: z.string().min(1, { message: 'Title is required' }),
+    pageDesc: z.string().min(1, { message: 'Description is required' }),
+    pageUrl: z.string().min(1, { message: 'Page URL is required' }),
     isShowcased: z.number(),
     folderId: z.number(),
     unbindTags: z.array(z.string()),
@@ -91,7 +89,7 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
   const { run: updatePageRun } = useRequest(updatePage, {
     manual: true,
     onSuccess: () => {
-      toast.success(t('page-update-success'))
+      toast.success('Page updated successfully')
       refreshTagCache()
       handleSearch()
       onOpenChange(false)
@@ -118,9 +116,9 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('title')}</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input placeholder={t('input-title-placeholder')} {...field} />
+                      <Input placeholder="Enter page title" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,9 +129,9 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="pageDesc"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('description')}</FormLabel>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder={t('input-description-placeholder')} />
+                      <Textarea placeholder="Enter page description" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -144,9 +142,9 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="pageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('page-url')}</FormLabel>
+                    <FormLabel>Page URL</FormLabel>
                     <FormControl>
-                      <Input placeholder={t('input-page-url-placeholder')} {...field} />
+                      <Input placeholder="Enter page URL" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -157,7 +155,7 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="isShowcased"
                 render={({ field }) => (
                   <FormItem className="flex flex-col gap-2">
-                    <FormLabel>{t('showcased')}</FormLabel>
+                    <FormLabel>Showcased</FormLabel>
                     <FormControl>
                       <Switch checked={field.value === 1} onCheckedChange={value => field.onChange(Number(value))} />
                     </FormControl>
@@ -169,14 +167,14 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="folderId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('folder')}</FormLabel>
+                    <FormLabel>Folder</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
                         value={String(field.value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={t('select-a-folder')} />
+                          <SelectValue placeholder="Select a folder" />
                         </SelectTrigger>
                         <SelectContent>
                           {folders?.map(folder => (
@@ -192,7 +190,7 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
                 name="tags"
                 render={() => (
                   <FormItem>
-                    <FormLabel>{t('tags')}</FormLabel>
+                    <FormLabel>Tags</FormLabel>
                     <FormControl>
                       <AutoCompleteTagInput
                         tags={tagCache ?? []}
@@ -207,9 +205,9 @@ function Comp({ open, onOpenChange, pageId }: CardEditDialogProps) {
               </FormField>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline">{t('cancel')}</Button>
+                  <Button variant="outline">Cancel</Button>
                 </DialogClose>
-                <Button type="submit">{t('save')}</Button>
+                <Button type="submit">Save</Button>
               </DialogFooter>
             </form>
           </Form>

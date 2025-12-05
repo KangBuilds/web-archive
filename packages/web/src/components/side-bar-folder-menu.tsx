@@ -8,7 +8,6 @@ import { useState } from 'react'
 import type { Folder as FolderType } from '@web-archive/shared/types'
 import { useRequest } from 'ahooks'
 import toast from 'react-hot-toast'
-import { useTranslation } from 'react-i18next'
 import NewFolderDialog from './new-folder-dialog'
 import EditFolderDialog from './edit-folder-dialog'
 import Folder from './folder'
@@ -33,7 +32,6 @@ interface SidebarFolderCollapseProps {
 }
 
 function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: SidebarFolderCollapseProps) {
-  const { t } = useTranslation()
   const navigate = useNavigate()
 
   const [isFoldersCollapseOpen, setIsFoldersCollapseOpen] = useState(true)
@@ -43,7 +41,7 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
   emitter.on('refreshSideBar', refresh)
 
   const handleDeleteFolder = async (folderId: number) => {
-    if (isNil(folders) || !confirm(t('are-you-sure-you-want-to-delete-this-folder')))
+    if (isNil(folders) || !confirm('Are you sure you want to delete this folder?'))
       return
 
     try {
@@ -55,10 +53,10 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
         setOpenedFolder(nextFolderId)
       else
         navigate('/')
-      toast.success(t('folder-deleted-successfully'))
+      toast.success('Folder deleted successfully')
     }
     catch (error) {
-      toast.error(t('failed-to-delete-folder'))
+      toast.error('Failed to delete folder')
     }
   }
 
@@ -88,7 +86,7 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
           <SidebarMenuButton className="w-full justify-between h-9 px-3 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent">
             <div className="flex items-center text-sm font-medium">
               <FolderIcon className="mr-2.5 h-4 w-4" />
-              {t('folders')}
+              Folders
             </div>
             <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', isFoldersCollapseOpen && 'rotate-180')} />
           </SidebarMenuButton>
@@ -135,7 +133,7 @@ function SidebarFolderMenu({ openedFolder, setOpenedFolder, className }: Sidebar
                 onClick={() => setNewFolderDialogOpen(true)}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                {t('add-folder')}
+                Add Folder
               </Button>
             </SidebarMenuItem>
           </SidebarMenuSub>
