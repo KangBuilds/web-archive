@@ -243,7 +243,7 @@ export default function AppSidebar({
                       </CollapsibleTrigger>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <SidebarMenuAction showOnHover>
+                          <SidebarMenuAction showOnHover className="right-6">
                             <MoreHorizontal className="size-4" />
                           </SidebarMenuAction>
                         </DropdownMenuTrigger>
