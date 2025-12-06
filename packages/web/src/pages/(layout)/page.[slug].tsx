@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Download, Maximize2, Minimize2, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -13,7 +13,6 @@ import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import { useSidebar } from '@web-archive/shared/components/ui/sidebar'
 import { useNavigate, useParams } from '~/router'
 import { deletePage, getPageDetail } from '~/data/page'
-import { useObjectURL } from '~/hooks/useObjectUrl'
 
 async function getPageContent(pageId: string | undefined) {
   if (!pageId)
@@ -60,17 +59,29 @@ export default function ArchivePage() {
     enabled: !!slug,
   })
 
-  const { objectURL: pageContentUrl, setObject } = useObjectURL(null)
-
-  const { isLoading: pageLoading } = useQuery({
+  const { data: pageContent, isLoading: pageLoading } = useQuery({
     queryKey: ['page-content', slug],
-    queryFn: async () => {
-      const html = await getPageContent(slug)
-      setObject(html)
-      return html
-    },
+    queryFn: () => getPageContent(slug),
     enabled: !!slug,
   })
+
+  // Create object URL from page content, recreating it when content changes
+  // This properly handles React Query's cached data on re-navigation
+  const pageContentUrl = useMemo(() => {
+    if (!pageContent)
+      return null
+    const blob = new Blob([pageContent], { type: 'text/html' })
+    return URL.createObjectURL(blob)
+  }, [pageContent])
+
+  // Cleanup object URL when component unmounts or URL changes
+  useEffect(() => {
+    return () => {
+      if (pageContentUrl) {
+        URL.revokeObjectURL(pageContentUrl)
+      }
+    }
+  }, [pageContentUrl])
 
   // Mutations
   const deletePageMutation = useMutation({
