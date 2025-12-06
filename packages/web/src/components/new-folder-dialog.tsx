@@ -1,56 +1,77 @@
-import { Dialog, DialogContent } from '@web-archive/shared/components/dialog'
-import { Button } from '@web-archive/shared/components/button'
-import { Input } from '@web-archive/shared/components/input'
 import { useState } from 'react'
-import { DialogDescription, DialogTitle } from '@radix-ui/react-dialog'
-import toast from 'react-hot-toast'
-import { useRequest } from 'ahooks'
-import { createFolder } from '~/data/folder'
+import { Loader2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@web-archive/shared/components/ui/dialog'
+import { Button } from '@web-archive/shared/components/ui/button'
+import { Input } from '@web-archive/shared/components/ui/input'
+import { Label } from '@web-archive/shared/components/ui/label'
 
-interface NewFolderProps {
-  afterSubmit: () => void
+interface NewFolderDialogProps {
   open: boolean
-  setOpen: (open: boolean) => void
+  onOpenChange: (open: boolean) => void
+  onSubmit: (name: string) => void
+  loading?: boolean
 }
 
-function NewFolderDialog({ afterSubmit, open, setOpen }: NewFolderProps) {
+export default function NewFolderDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  loading,
+}: NewFolderDialogProps) {
   const [name, setName] = useState('')
-  const { run } = useRequest(
-    createFolder,
-    {
-      manual: true,
-      onSuccess: () => {
-        setOpen(false)
-        setName('')
-        afterSubmit()
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-    },
-  )
-  const handleSubmit = () => {
-    if (name.length === 0) {
-      toast.error('Folder name is required')
-      return
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (name.trim()) {
+      onSubmit(name.trim())
+      setName('')
     }
-    run(name)
   }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogTitle>Create New Folder</DialogTitle>
-        <DialogDescription></DialogDescription>
-        <Input
-          value={name}
-          onChange={e => setName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder="Folder Name"
-        />
-        <Button onClick={handleSubmit}>Create</Button>
+        <DialogHeader>
+          <DialogTitle>Create new folder</DialogTitle>
+          <DialogDescription>
+            Enter a name for your new folder to organize your saved pages.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="folder-name">Folder name</Label>
+              <Input
+                id="folder-name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="My folder"
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!name.trim() || loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
 }
-
-export default NewFolderDialog

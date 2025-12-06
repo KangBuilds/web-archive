@@ -1,57 +1,44 @@
-import { AlertCircle, Home } from 'lucide-react'
-import { Button } from '@web-archive/shared/components/button'
+import { AlertTriangle } from 'lucide-react'
+import { Button } from '@web-archive/shared/components/ui/button'
 import { Link, useParams } from '~/router'
 
-function ErrorPage() {
+export default function ErrorPage() {
   const { slug } = useParams('/error/:slug')
 
-  const getErrorMessage = (code: string) => {
-    switch (code) {
-      case '404':
-        return {
-          title: 'Page Not Found',
-          description: 'The page you\'re looking for doesn\'t exist or has been moved.',
-        }
-      case '403':
-        return {
-          title: 'Access Denied',
-          description: 'You don\'t have permission to view this page.',
-        }
-      case '500':
-        return {
-          title: 'Server Error',
-          description: 'Something went wrong on our end. Please try again later.',
-        }
-      default:
-        return {
-          title: `Error ${code}`,
-          description: 'An unexpected error occurred.',
-        }
-    }
+  const errorMessages: Record<string, { title: string, description: string }> = {
+    404: {
+      title: 'Page not found',
+      description: 'The page you\'re looking for doesn\'t exist or has been moved.',
+    },
+    500: {
+      title: 'Server error',
+      description: 'Something went wrong on our end. Please try again later.',
+    },
+    401: {
+      title: 'Unauthorized',
+      description: 'You need to be logged in to view this page.',
+    },
   }
 
-  const { title, description } = getErrorMessage(slug ?? '404')
+  const error = errorMessages[slug ?? '404'] ?? errorMessages['404']
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background p-6">
-      <div className="text-center max-w-md animate-fade-up">
-        <div className="w-20 h-20 rounded-2xl bg-destructive/10 flex items-center justify-center mx-auto mb-6">
-          <AlertCircle className="w-10 h-10 text-destructive" />
-        </div>
-
-        <h1 className="font-serif text-4xl font-bold text-foreground mb-2">{slug}</h1>
-        <h2 className="font-serif text-xl font-semibold text-foreground mb-3">{title}</h2>
-        <p className="text-muted-foreground mb-8">{description}</p>
-
+    <div className="flex h-svh flex-col items-center justify-center gap-4 p-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
+        <AlertTriangle className="h-8 w-8 text-destructive" />
+      </div>
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold">{error.title}</h1>
+        <p className="mt-1 max-w-md text-muted-foreground">{error.description}</p>
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={() => window.history.back()}>
+          Go back
+        </Button>
         <Button asChild>
-          <Link to="/">
-            <Home className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
+          <Link to="/">Go home</Link>
         </Button>
       </div>
-    </main>
+    </div>
   )
 }
-
-export default ErrorPage

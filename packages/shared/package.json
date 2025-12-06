@@ -9,7 +9,7 @@
   "exports": {
     "./types": "./types/index.ts",
     "./utils": "./utils/index.ts",
-    "./components/*": "./components/*.tsx",
+    "./components/ui/*": "./components/ui/*.tsx",
     "./global.css": "./global.css"
   }
 }

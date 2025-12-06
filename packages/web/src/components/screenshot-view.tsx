@@ -1,40 +1,58 @@
-import { Skeleton } from '@web-archive/shared/components/skeleton'
-import { isNil } from '@web-archive/shared/utils'
-import { useRequest } from 'ahooks'
-import { memo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { ImageOff } from 'lucide-react'
+import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
+import { cn } from '@web-archive/shared/utils'
 import { getPageScreenshot } from '~/data/page'
 import { useObjectURL } from '~/hooks/useObjectUrl'
 
 interface ScreenshotViewProps {
+  screenshotId: string | null
   className?: string
   loadingClassName?: string
-  screenshotId: string | null
 }
 
-const ScreenshotView = memo(({ screenshotId, className, loadingClassName }: ScreenshotViewProps) => {
-  const { objectURL: screenshot, setObject: setScreenshot } = useObjectURL(null)
-  const { loading: screenshotLoading } = useRequest(
-    getPageScreenshot(screenshotId),
-    {
-      onSuccess: (data) => {
-        if (isNil(data))
-          return setScreenshot(null)
-        setScreenshot(data)
-      },
-      refreshDeps: [screenshotId],
-      loadingDelay: 100,
+export default function ScreenshotView({
+  screenshotId,
+  className,
+  loadingClassName,
+}: ScreenshotViewProps) {
+  const { objectURL, setObject } = useObjectURL(null)
+
+  const { isLoading, isError } = useQuery({
+    queryKey: ['screenshot', screenshotId],
+    queryFn: async () => {
+      const blob = await getPageScreenshot(screenshotId)()
+      if (blob) {
+        setObject(blob)
+      }
+      return blob
     },
-  )
+    enabled: !!screenshotId,
+  })
+
+  if (!screenshotId || isError) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center bg-muted',
+          loadingClassName,
+        )}
+      >
+        <ImageOff className="h-8 w-8 text-muted-foreground/50" />
+      </div>
+    )
+  }
+
+  if (isLoading || !objectURL) {
+    return <Skeleton className={cn(loadingClassName)} />
+  }
 
   return (
-    screenshotLoading || isNil(screenshot)
-      ? (
-        <Skeleton className={loadingClassName} />
-        )
-      : (
-        <img src={screenshot} className={className} />
-        )
+    <img
+      src={objectURL}
+      alt="Page screenshot"
+      className={cn(className)}
+      loading="lazy"
+    />
   )
-})
-
-export default ScreenshotView
+}

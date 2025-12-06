@@ -1,21 +1,30 @@
-import toast from 'react-hot-toast'
+import { toast } from 'sonner'
 import { logOut } from './router'
 
-type Options = {
-  method: 'POST' | 'PUT'
-  body?: Record<string, unknown> | string
-  query?: Record<string, string>
-} | {
-  method: 'GET' | 'DELETE'
-  query?: Record<string, string>
-}
+type Options =
+  | {
+    method: 'POST' | 'PUT'
+    body?: Record<string, unknown> | string
+    query?: Record<string, string>
+  }
+  | {
+    method: 'GET' | 'DELETE'
+    query?: Record<string, string>
+  }
 
 async function fetcher<T>(url: string, options: Options): Promise<T> {
   const { method, query } = options
   url = processQueryString(url, query)
 
   const res = await fetch(url, {
-    ...(method === 'POST' || method === 'PUT' ? { body: typeof options.body === 'string' ? options.body : JSON.stringify(options.body) } : {}),
+    ...(method === 'POST' || method === 'PUT'
+      ? {
+          body:
+            typeof options.body === 'string'
+              ? options.body
+              : JSON.stringify(options.body),
+        }
+      : {}),
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -43,11 +52,11 @@ async function processResponse<T>(res: Response) {
   if (!res.ok) {
     toast.error('Network error')
   }
-  const content = <{
+  const content = (await res.json()) as {
     code: number
     message: string
     data: T
-  }> await res.json()
+  }
   if (content.code !== 200) {
     toast.error(content.message)
     switch (content.code) {

@@ -1,12 +1,14 @@
-import type { Tag } from '@web-archive/shared/types'
 import { createContext } from 'react'
+import type { Tag } from '@web-archive/shared/types'
 
-const TagContext = createContext<{
+interface TagContextType {
   tagCache: Tag[]
-  refreshTagCache: () => Promise<Tag[]>
-}>({
-      tagCache: [],
-      refreshTagCache: async () => [],
-    })
+  refreshTagCache: () => void
+}
+
+const TagContext = createContext<TagContextType>({
+  tagCache: [],
+  refreshTagCache: () => {},
+})
 
 export default TagContext

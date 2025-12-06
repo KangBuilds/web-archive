@@ -4,7 +4,7 @@ const typography = require('@tailwindcss/typography')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ['class'],
-  content: ['./src/**/*.tsx', '../shared/components/*.tsx', '../../node_modules/emblor/dist/*.js'],
+  content: ['./src/**/*.tsx', '../shared/components/**/*.tsx'],
   theme: {
     container: {
       center: true,
@@ -48,15 +48,31 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        sidebar: {
+          'DEFAULT': 'hsl(var(--sidebar-background))',
+          'foreground': 'hsl(var(--sidebar-foreground))',
+          'primary': 'hsl(var(--sidebar-primary))',
+          'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+          'accent': 'hsl(var(--sidebar-accent))',
+          'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+          'border': 'hsl(var(--sidebar-border))',
+          'ring': 'hsl(var(--sidebar-ring))',
+        },
+        chart: {
+          1: 'hsl(var(--chart-1))',
+          2: 'hsl(var(--chart-2))',
+          3: 'hsl(var(--chart-3))',
+          4: 'hsl(var(--chart-4))',
+          5: 'hsl(var(--chart-5))',
+        },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['DM Sans', 'var(--font-sans)', ...fontFamily.sans],
-        serif: ['Crimson Pro', 'Georgia', ...fontFamily.serif],
+        sans: ['Inter', 'var(--font-sans)', ...fontFamily.sans],
       },
       keyframes: {
         'accordion-down': {
@@ -79,12 +95,13 @@ module.exports = {
           from: { opacity: '0', transform: 'scale(0.95)' },
           to: { opacity: '1', transform: 'scale(1)' },
         },
-        'slide-in-right': {
-          from: { transform: 'translateX(-100%)' },
-          to: { transform: 'translateX(0)' },
+        'collapsible-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-collapsible-content-height)' },
         },
-        'shimmer': {
-          '100%': { transform: 'translateX(100%)' },
+        'collapsible-up': {
+          from: { height: 'var(--radix-collapsible-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {
@@ -93,25 +110,10 @@ module.exports = {
         'fade-in': 'fade-in 0.3s ease-out',
         'fade-up': 'fade-up 0.4s ease-out',
         'scale-in': 'scale-in 0.2s ease-out',
-        'slide-in': 'slide-in-right 0.3s ease-out',
-        'shimmer': 'shimmer 2s infinite',
-      },
-      boxShadow: {
-        'soft': '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 4px 16px -4px rgba(0, 0, 0, 0.08)',
-        'soft-lg': '0 4px 12px -4px rgba(0, 0, 0, 0.06), 0 8px 24px -8px rgba(0, 0, 0, 0.1)',
-        'glow': '0 0 20px rgba(var(--primary), 0.15)',
-      },
-      sidebar: {
-        'DEFAULT': 'hsl(var(--sidebar-background))',
-        'foreground': 'hsl(var(--sidebar-foreground))',
-        'primary': 'hsl(var(--sidebar-primary))',
-        'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-        'accent': 'hsl(var(--sidebar-accent))',
-        'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-        'border': 'hsl(var(--sidebar-border))',
-        'ring': 'hsl(var(--sidebar-ring))',
+        'collapsible-down': 'collapsible-down 0.2s ease-out',
+        'collapsible-up': 'collapsible-up 0.2s ease-out',
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/line-clamp'), typography],
+  plugins: [require('tailwindcss-animate'), typography],
 }

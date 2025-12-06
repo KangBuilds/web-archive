@@ -1,72 +1,77 @@
-import { Button } from '@web-archive/shared/components/button'
-import { Dialog, DialogContent, DialogTitle } from '@web-archive/shared/components/dialog'
-import { Input } from '@web-archive/shared/components/input'
-import { isNil } from '@web-archive/shared/utils'
-import { useRequest } from 'ahooks'
-import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { updateFolder } from '~/data/folder'
+import { Loader2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@web-archive/shared/components/ui/dialog'
+import { Button } from '@web-archive/shared/components/ui/button'
+import { Input } from '@web-archive/shared/components/ui/input'
+import { Label } from '@web-archive/shared/components/ui/label'
 
-interface EditFolderProps {
-  afterSubmit: () => void
+interface EditFolderDialogProps {
   open: boolean
-  setOpen: (open: boolean) => void
-  editFolder?: {
-    id: number
-    name: string
-  }
+  onOpenChange: (open: boolean) => void
+  folderName: string
+  onFolderNameChange: (name: string) => void
+  onSubmit: () => void
+  loading?: boolean
 }
 
-function EditFolderDialog({ afterSubmit, open, setOpen, editFolder }: EditFolderProps) {
-  const [folderName, setFolderName] = useState(editFolder?.name ?? '')
-  useEffect(() => {
-    setFolderName(editFolder?.name ?? '')
-  }, [editFolder])
-  const { run } = useRequest(
-    updateFolder,
-    {
-      manual: true,
-      onSuccess: () => {
-        setOpen(false)
-        toast.success('Folder updated successfully')
-        afterSubmit()
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-    },
-  )
-  const handleSubmit = () => {
-    if (folderName.length === 0) {
-      toast.error('Folder name is required')
-      return
+export default function EditFolderDialog({
+  open,
+  onOpenChange,
+  folderName,
+  onFolderNameChange,
+  onSubmit,
+  loading,
+}: EditFolderDialogProps) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (folderName.trim()) {
+      onSubmit()
     }
-    if (folderName === editFolder?.name) {
-      setOpen(false)
-      toast.success('Folder updated successfully')
-      return
-    }
-    if (isNil(editFolder?.id)) {
-      toast.error('Folder id is required')
-      return
-    }
-    run(editFolder.id, folderName)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogTitle>Edit Folder</DialogTitle>
-        <Input
-          value={folderName}
-          onChange={e => setFolderName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder="Folder Name"
-        />
-        <Button onClick={handleSubmit}>Update</Button>
+        <DialogHeader>
+          <DialogTitle>Rename folder</DialogTitle>
+          <DialogDescription>
+            Enter a new name for this folder.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-folder-name">Folder name</Label>
+              <Input
+                id="edit-folder-name"
+                value={folderName}
+                onChange={e => onFolderNameChange(e.target.value)}
+                placeholder="My folder"
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!folderName.trim() || loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
 }
-
-export default EditFolderDialog

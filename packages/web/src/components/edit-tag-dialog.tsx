@@ -1,78 +1,75 @@
-import { Button } from '@web-archive/shared/components/button'
-import { Dialog, DialogContent, DialogTitle } from '@web-archive/shared/components/dialog'
-import { Input } from '@web-archive/shared/components/input'
-import { isNil } from '@web-archive/shared/utils'
-import { useRequest } from 'ahooks'
-import { useContext, useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
-import { updateTag } from '~/data/tag'
-import TagContext from '~/store/tag'
+import { Loader2 } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@web-archive/shared/components/ui/dialog'
+import { Button } from '@web-archive/shared/components/ui/button'
+import { Input } from '@web-archive/shared/components/ui/input'
+import { Label } from '@web-archive/shared/components/ui/label'
 
-interface EditTagProps {
-  afterSubmit: () => void
+interface EditTagDialogProps {
   open: boolean
-  setOpen: (open: boolean) => void
-  editTag?: {
-    id: number
-    name: string
-  }
+  onOpenChange: (open: boolean) => void
+  tagName: string
+  onTagNameChange: (name: string) => void
+  onSubmit: () => void
+  loading?: boolean
 }
 
-function EditTagDialog({ afterSubmit, open, setOpen, editTag }: EditTagProps) {
-  const { tagCache } = useContext(TagContext)
-  const [tagName, setTagName] = useState(editTag?.name ?? '')
-  useEffect(() => {
-    setTagName(editTag?.name ?? '')
-  }, [editTag])
-  const { run } = useRequest(
-    updateTag,
-    {
-      manual: true,
-      onSuccess: () => {
-        setOpen(false)
-        toast.success('Tag updated successfully')
-        afterSubmit()
-      },
-      onError: (error) => {
-        toast.error(error.message)
-      },
-    },
-  )
-  const handleSubmit = () => {
-    if (tagName.length === 0) {
-      toast.error('Tag name is required')
-      return
+export default function EditTagDialog({
+  open,
+  onOpenChange,
+  tagName,
+  onTagNameChange,
+  onSubmit,
+  loading,
+}: EditTagDialogProps) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (tagName.trim()) {
+      onSubmit()
     }
-    if (tagName === editTag?.name) {
-      setOpen(false)
-      toast.success('Tag updated successfully')
-      return
-    }
-    if (isNil(editTag?.id)) {
-      toast.error('Tag id is required')
-      return
-    }
-    if (tagCache?.find(tag => tag.name === tagName)) {
-      toast.error('Tag name already exists')
-      return
-    }
-    run({ id: editTag.id, name: tagName })
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogTitle>Edit Tag</DialogTitle>
-        <Input
-          value={tagName}
-          onChange={e => setTagName(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder="Tag Name"
-        />
-        <Button onClick={handleSubmit}>Update</Button>
+        <DialogHeader>
+          <DialogTitle>Rename tag</DialogTitle>
+          <DialogDescription>Enter a new name for this tag.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-tag-name">Tag name</Label>
+              <Input
+                id="edit-tag-name"
+                value={tagName}
+                onChange={e => onTagNameChange(e.target.value)}
+                placeholder="My tag"
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!tagName.trim() || loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
 }
-
-export default EditTagDialog

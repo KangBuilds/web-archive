@@ -1,9 +1,16 @@
-import type { FormEvent } from 'react'
-import { useState } from 'react'
-import { Button } from '@web-archive/shared/components/button'
-import { Input } from '@web-archive/shared/components/input'
-import toast, { Toaster } from 'react-hot-toast'
+import { type FormEvent, useState } from 'react'
+import { toast } from 'sonner'
 import { Archive, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Button } from '@web-archive/shared/components/ui/button'
+import { Input } from '@web-archive/shared/components/ui/input'
+import { Label } from '@web-archive/shared/components/ui/label'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@web-archive/shared/components/ui/card'
 import router from '~/utils/router'
 
 export default function LoginPage() {
@@ -31,7 +38,7 @@ export default function LoginPage() {
           return
         }
         if (res.status === 201) {
-          toast.success('Admin password set, please use it login again')
+          toast.success('Admin password set, please use it to login again')
           return
         }
         const json = await res.json()
@@ -46,113 +53,132 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <Toaster position="top-center" reverseOrder={false} />
-
-      {/* Left Panel - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/10 via-accent to-secondary/30 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent-foreground/10 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative z-10 flex flex-col justify-center items-center w-full p-12">
-          <div className="text-center animate-fade-up">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/10 mb-8">
-              <Archive className="w-10 h-10 text-primary" />
-            </div>
-            <h1 className="font-serif text-4xl font-bold text-foreground mb-4">
-              Web Archive
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-              Your personal library of preserved web pages.
-              Capture, organize, and rediscover the web.
-            </p>
-          </div>
-
-          {/* Feature highlights */}
-          <div className="mt-16 grid gap-6 max-w-sm animate-fade-up" style={{ animationDelay: '150ms' }}>
-            {[
-              'Capture full web pages instantly',
-              'Organize with folders and tags',
-              'Share your curated collections',
-            ].map((feature, i) => (
-              <div key={i} className="flex items-center gap-3 text-muted-foreground">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                <span className="text-sm">{feature}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
+      {/* Background decoration */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-bl from-primary/5 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-primary/5 via-transparent to-transparent rounded-full blur-3xl" />
       </div>
 
-      {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-sm animate-fade-up">
-          {/* Mobile logo */}
-          <div className="lg:hidden text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-4">
-              <Archive className="w-8 h-8 text-primary" />
+      <div className="w-full max-w-md animate-fade-up">
+        <Card className="border-border/50 shadow-xl">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
+              <Archive className="h-7 w-7 text-primary" />
             </div>
-            <h1 className="font-serif text-2xl font-bold">Web Archive</h1>
-          </div>
-
-          <div className="space-y-6">
             <div className="space-y-2">
-              <h2 className="font-serif text-2xl font-semibold tracking-tight">
-                Welcome back
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Please enter your key to login
-              </p>
+              <CardTitle className="text-2xl font-bold">Web Archive</CardTitle>
+              <CardDescription className="text-base">
+                Your personal library of preserved web pages
+              </CardDescription>
             </div>
-
+          </CardHeader>
+          <CardContent className="pt-4">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground" htmlFor="password">
-                  Access Key
-                </label>
+                <Label htmlFor="password">Access Key</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password, at least 8 characters"
+                    placeholder="Enter your password (min. 8 characters)"
                     value={key}
                     onChange={e => setKey(e.target.value)}
-                    className="pr-10 h-11 bg-background border-border/60 focus:border-primary transition-colors"
+                    className="pr-10"
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
                   >
-                    {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    {showPassword
+                      ? (
+                        <Eye className="h-4 w-4" />
+                        )
+                      : (
+                        <EyeOff className="h-4 w-4" />
+                        )}
                   </button>
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full h-11 font-medium transition-all hover:shadow-soft"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading
                   ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Logging in...
-                    </span>
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
                     )
                   : (
-                      'Login'
+                      'Sign in'
                     )}
               </Button>
-            </form>
 
-            <p className="text-xs text-center text-muted-foreground pt-4">
-              First time? Enter your key to set it as your password.
-            </p>
+              <p className="text-xs text-center text-muted-foreground pt-2">
+                First time? Enter a key to set it as your password.
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Feature highlights */}
+        <div className="mt-8 grid gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <span>Capture full web pages instantly</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                />
+              </svg>
+            </div>
+            <span>Organize with folders and tags</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary">
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <span>Self-hosted and privacy-first</span>
           </div>
         </div>
       </div>

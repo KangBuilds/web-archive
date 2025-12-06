@@ -1,40 +1,34 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-/**
- * React Hook that receives an instance of `File`, `Blob` or `MediaSource` and
- * creates an URL representing it, providing a state object containing the file
- * with a set function to change the file object. It releases URL when component
- * unmount or parameter changes.
- * @param initialObject - `null` or an instance of `File`, `Blob` or `MediaSource`.
- * @source https://github.com/VitorLuizC/use-object-url/blob/master/src/index.ts
- */
-function useObjectURL(initialObject: null | File | Blob | MediaSource | string | undefined) {
-  const [objectURL, setObjectURL] = useState<null | string>(null)
-
-  const [object, setObject] = useState<null | File | Blob | MediaSource | string | undefined>(
-    initialObject,
-  )
+export function useObjectURL(initialObject: Blob | string | null) {
+  const [objectURL, setObjectURL] = useState<string | null>(null)
+  const [object, setObject] = useState<Blob | string | null>(initialObject)
 
   useEffect(() => {
     if (!object) {
+      setObjectURL(null)
       return
     }
 
-    const targetObject = (typeof object === 'string' ? new Blob([object], { type: 'text/html' }) : object)
+    let url: string
+    if (typeof object === 'string') {
+      const blob = new Blob([object], { type: 'text/html' })
+      url = URL.createObjectURL(blob)
+    }
+    else {
+      url = URL.createObjectURL(object)
+    }
 
-    const objectURL = URL.createObjectURL(targetObject)
-    setObjectURL(objectURL)
+    setObjectURL(url)
+
     return () => {
-      URL.revokeObjectURL(objectURL)
-      setObjectURL(null)
+      URL.revokeObjectURL(url)
     }
   }, [object])
 
-  return {
-    objectURL,
-    object,
-    setObject,
-  }
-}
+  const updateObject = useCallback((newObject: Blob | string | null) => {
+    setObject(newObject)
+  }, [])
 
-export { useObjectURL }
+  return { objectURL, setObject: updateObject }
+}
