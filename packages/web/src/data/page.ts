@@ -64,7 +64,15 @@ function getPageScreenshot(screenshotId: string | null) {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
     })
-    return await res.blob()
+    if (!res.ok) {
+      return null
+    }
+    const blob = await res.blob()
+    // Check if the blob has content (empty responses indicate no screenshot)
+    if (blob.size === 0) {
+      return null
+    }
+    return blob
   }
 }
 

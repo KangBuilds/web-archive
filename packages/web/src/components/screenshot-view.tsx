@@ -18,19 +18,20 @@ export default function ScreenshotView({
 }: ScreenshotViewProps) {
   const { objectURL, setObject } = useObjectURL(null)
 
-  const { isLoading, isError } = useQuery({
+  const { data: blob, isLoading, isError } = useQuery({
     queryKey: ['screenshot', screenshotId],
     queryFn: async () => {
-      const blob = await getPageScreenshot(screenshotId)()
-      if (blob) {
-        setObject(blob)
+      const result = await getPageScreenshot(screenshotId)()
+      if (result) {
+        setObject(result)
       }
-      return blob
+      return result
     },
     enabled: !!screenshotId,
   })
 
-  if (!screenshotId || isError) {
+  // Show placeholder if no screenshotId, error occurred, or no screenshot data returned
+  if (!screenshotId || isError || (!isLoading && !blob)) {
     return (
       <div
         className={cn(
