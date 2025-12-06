@@ -1,6 +1,5 @@
 import {
   Archive,
-  ChevronRight,
   Folder,
   FolderOpen,
   Hash,
@@ -31,9 +30,6 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from '@web-archive/shared/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -42,11 +38,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@web-archive/shared/components/ui/dropdown-menu'
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@web-archive/shared/components/ui/collapsible'
 import { Button } from '@web-archive/shared/components/ui/button'
 import { useTheme } from '~/components/theme-provider'
 import { Link, useNavigate, useParams } from '~/router'
@@ -211,86 +202,60 @@ export default function AppSidebar({
             <SidebarGroupContent>
               <SidebarMenu>
                 {folders.map(folder => (
-                  <Collapsible
-                    key={folder.id}
-                    open={openedFolder === folder.id}
-                    onOpenChange={open =>
-                      setOpenedFolder(open ? folder.id : null)}
-                  >
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={openedFolder === folder.id}
+                  <SidebarMenuItem key={folder.id}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={openedFolder === folder.id}
+                    >
+                      <Link
+                        to="/folder/:slug"
+                        params={{ slug: folder.id.toString() }}
                       >
-                        <Link
-                          to="/folder/:slug"
-                          params={{ slug: folder.id.toString() }}
-                        >
-                          {openedFolder === folder.id
-                            ? (
-                              <FolderOpen className="size-4" />
-                              )
-                            : (
-                              <Folder className="size-4" />
-                              )}
-                          <span>{folder.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuAction className="data-[state=open]:rotate-90">
-                          <ChevronRight className="size-4" />
+                        {openedFolder === folder.id
+                          ? (
+                            <FolderOpen className="size-4" />
+                            )
+                          : (
+                            <Folder className="size-4" />
+                            )}
+                        <span>{folder.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <SidebarMenuAction showOnHover>
+                          <MoreHorizontal className="size-4" />
                         </SidebarMenuAction>
-                      </CollapsibleTrigger>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <SidebarMenuAction showOnHover className="right-6">
-                            <MoreHorizontal className="size-4" />
-                          </SidebarMenuAction>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right" align="start">
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setEditFolderId(folder.id)
-                              setEditFolderName(folder.name)
-                            }}
-                          >
-                            <Pencil className="mr-2 size-4" />
-                            Rename
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-destructive focus:text-destructive"
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  'Are you sure you want to delete this folder?',
-                                )
-                              ) {
-                                deleteFolderMutation.mutate(folder.id)
-                              }
-                            }}
-                          >
-                            <Trash2 className="mr-2 size-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuSubButton asChild>
-                              <Link
-                                to="/folder/:slug"
-                                params={{ slug: folder.id.toString() }}
-                              >
-                                View all pages
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </SidebarMenuItem>
-                  </Collapsible>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side="right" align="start">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditFolderId(folder.id)
+                            setEditFolderName(folder.name)
+                          }}
+                        >
+                          <Pencil className="mr-2 size-4" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                'Are you sure you want to delete this folder?',
+                              )
+                            ) {
+                              deleteFolderMutation.mutate(folder.id)
+                            }
+                          }}
+                        >
+                          <Trash2 className="mr-2 size-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuItem>
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
