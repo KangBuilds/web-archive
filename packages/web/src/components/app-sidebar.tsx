@@ -180,7 +180,7 @@ export default function AppSidebar({
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={isActive('/')}>
-                    <Link to="/">
+                    <Link to="/" onClick={() => setSelectedTag(null)}>
                       <Home className="size-4" />
                       <span>Home</span>
                     </Link>
