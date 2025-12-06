@@ -1,9 +1,9 @@
+import { useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ImageOff } from 'lucide-react'
 import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import { cn } from '@web-archive/shared/utils'
 import { getPageScreenshot } from '~/data/page'
-import { useObjectURL } from '~/hooks/useObjectUrl'
 
 interface ScreenshotViewProps {
   screenshotId: string | null
@@ -16,19 +16,28 @@ export default function ScreenshotView({
   className,
   loadingClassName,
 }: ScreenshotViewProps) {
-  const { objectURL, setObject } = useObjectURL(null)
-
   const { data: blob, isLoading, isError } = useQuery({
     queryKey: ['screenshot', screenshotId],
-    queryFn: async () => {
-      const result = await getPageScreenshot(screenshotId)()
-      if (result) {
-        setObject(result)
-      }
-      return result
-    },
+    queryFn: () => getPageScreenshot(screenshotId)(),
     enabled: !!screenshotId,
   })
+
+  // Create object URL from blob data, recreating it when blob changes
+  // This properly handles React Query's cached data on re-navigation
+  const objectURL = useMemo(() => {
+    if (!blob)
+      return null
+    return URL.createObjectURL(blob)
+  }, [blob])
+
+  // Cleanup object URL when component unmounts or URL changes
+  useEffect(() => {
+    return () => {
+      if (objectURL) {
+        URL.revokeObjectURL(objectURL)
+      }
+    }
+  }, [objectURL])
 
   // Show placeholder if no screenshotId, error occurred, or no screenshot data returned
   if (!screenshotId || isError || (!isLoading && !blob)) {
