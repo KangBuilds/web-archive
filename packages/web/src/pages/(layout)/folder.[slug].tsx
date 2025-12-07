@@ -1,70 +1,17 @@
 import { useEffect, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FolderOpen, Search, X } from 'lucide-react'
+import { FolderOpen } from 'lucide-react'
 import { isNil } from '@web-archive/shared/utils'
 import { ScrollArea } from '@web-archive/shared/components/ui/scroll-area'
 import { Button } from '@web-archive/shared/components/ui/button'
-import { Input } from '@web-archive/shared/components/ui/input'
-import { SidebarTrigger } from '@web-archive/shared/components/ui/sidebar'
-import { Separator } from '@web-archive/shared/components/ui/separator'
 import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import type { Page } from '@web-archive/shared/types'
 import { useParams } from '~/router'
 import NotFound from '~/components/not-found'
 import { deletePage, queryPage } from '~/data/page'
 import PageCard from '~/components/page-card'
-
-function Header({
-  keyword,
-  setKeyword,
-  handleSearch,
-}: {
-  keyword: string
-  setKeyword: (keyword: string) => void
-  handleSearch: () => void
-}) {
-  const handleClear = () => {
-    setKeyword('')
-    handleSearch()
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch()
-    }
-  }
-
-  return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="h-4" />
-      <div className="flex flex-1 items-center gap-2">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-9 pr-9"
-            placeholder="Search in this folder..."
-            value={keyword}
-            onChange={e => setKeyword(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          {keyword && (
-            <button
-              onClick={handleClear}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Button onClick={handleSearch} size="sm">
-          Search
-        </Button>
-      </div>
-    </header>
-  )
-}
+import PageHeader from '~/components/page-header'
 
 function PageGrid({
   pages,
@@ -184,10 +131,11 @@ export default function FolderPage() {
 
   return (
     <div className="flex h-svh flex-col">
-      <Header
+      <PageHeader
         keyword={keyword}
         setKeyword={setKeyword}
         handleSearch={handleSearch}
+        searchPlaceholder="Search in this folder..."
       />
       <ScrollArea className="flex-1">
         <div className="p-6">

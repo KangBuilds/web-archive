@@ -5,11 +5,9 @@ import {
   Hash,
   Home,
   LogOut,
-  Moon,
   MoreHorizontal,
   Pencil,
   Plus,
-  Sun,
   Trash2,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -39,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from '@web-archive/shared/components/ui/dropdown-menu'
 import { Button } from '@web-archive/shared/components/ui/button'
-import { useTheme } from '~/components/theme-provider'
 import { Link, useNavigate, useParams } from '~/router'
 import { createFolder, deleteFolder, getAllFolder, updateFolder } from '~/data/folder'
 import { deleteTag, getAllTag, updateTag } from '~/data/tag'
@@ -57,7 +54,6 @@ export default function AppSidebar({
   setSelectedTag,
 }: AppSidebarProps) {
   const navigate = useNavigate()
-  const { theme, setTheme } = useTheme()
   const queryClient = useQueryClient()
   const [openedFolder, setOpenedFolder] = useState<number | null>(null)
   const { slug } = useParams('/folder/:slug')
@@ -142,10 +138,6 @@ export default function AppSidebar({
   const handleLogout = () => {
     localStorage.removeItem('token')
     navigate('/login')
-  }
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   const isActive = (path: string) => pathname === path
@@ -324,18 +316,6 @@ export default function AppSidebar({
 
         <SidebarFooter className="border-t border-sidebar-border">
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={toggleTheme}>
-                {theme === 'dark'
-                  ? (
-                    <Sun className="size-4" />
-                    )
-                  : (
-                    <Moon className="size-4" />
-                    )}
-                <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
                 onClick={handleLogout}

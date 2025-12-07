@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Download, Maximize2, Minimize2, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, Maximize2, Minimize2, Moon, Sun, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@web-archive/shared/components/ui/button'
 import {
@@ -13,6 +13,7 @@ import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import { useSidebar } from '@web-archive/shared/components/ui/sidebar'
 import { useNavigate, useParams } from '~/router'
 import { deletePage, getPageDetail } from '~/data/page'
+import { useTheme } from '~/components/theme-provider'
 
 async function getPageContent(pageId: string | undefined) {
   if (!pageId)
@@ -45,6 +46,7 @@ export default function ArchivePage() {
   const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
   const sidebarWasOpen = useRef(sidebarOpen)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     if (!slug) {
@@ -120,6 +122,10 @@ export default function ArchivePage() {
     }
   }, [sidebarOpen, setSidebarOpen])
 
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
+
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isNowFullscreen = !!document.fullscreenElement
@@ -176,6 +182,23 @@ export default function ArchivePage() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Download HTML</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Theme toggle button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  <span className="sr-only">
+                    {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  </span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
