@@ -4,18 +4,20 @@ import type { Tag } from '~/sql/types'
 async function selectAllTags(DB: D1Database) {
   const sql = `
     SELECT 
-      *
+      tags.*,
+      GROUP_CONCAT(page_tags.page_id) as page_ids
     FROM tags
+    LEFT JOIN page_tags ON tags.id = page_tags.tag_id
+    GROUP BY tags.id
   `
-  const sqlResult = await DB.prepare(sql).all<Tag>()
+  const sqlResult = await DB.prepare(sql).all<Tag & { page_ids: string }>()
   if (sqlResult.error) {
     throw sqlResult.error
   }
   const tagList = sqlResult.results.map((tag) => {
-    const pageIdDict = JSON.parse(tag.pageIdDict) as Record<string, number>
     return {
       ...tag,
-      pageIds: Object.values(pageIdDict),
+      pageIds: tag.page_ids ? tag.page_ids.split(',').map(Number) : [],
     }
   })
   return tagList
@@ -24,15 +26,17 @@ async function selectAllTags(DB: D1Database) {
 async function getTagById(DB: D1Database, id: number) {
   const sql = `
     SELECT 
-      *
+      tags.*,
+      GROUP_CONCAT(page_tags.page_id) as page_ids
     FROM tags
-    WHERE id = ?
+    LEFT JOIN page_tags ON tags.id = page_tags.tag_id
+    WHERE tags.id = ?
+    GROUP BY tags.id
   `
-  const tag = await DB.prepare(sql).bind(id).first<Tag>()
-  const pageIdDict = JSON.parse(tag.pageIdDict) as Record<string, number>
+  const tag = await DB.prepare(sql).bind(id).first<Tag & { page_ids: string }>()
   return {
     ...tag,
-    pageIds: Object.values(pageIdDict),
+    pageIds: tag.page_ids ? tag.page_ids.split(',').map(Number) : [],
   }
 }
 
@@ -92,21 +96,40 @@ function generateUpdateTagSql(
   bindList: Array<TagBindRecord>,
   unbindList: Array<TagBindRecord>,
 ) {
-  const updateStmt = DB.prepare(`
-    INSERT INTO tags (name, pageIdDict) VALUES (?, ?)
-      ON CONFLICT(name) DO UPDATE SET pageIdDict = json_patch(pageIdDict, ?) WHERE name = ?
+  const commands: D1PreparedStatement[] = []
+
+  // Create tags if they don't exist and bind pages
+  for (const { tagName, pageIds } of bindList) {
+    // First, ensure the tag exists
+    const createTagStmt = DB.prepare(`
+      INSERT INTO tags (name) VALUES (?)
+      ON CONFLICT(name) DO NOTHING
     `)
-  const bindCommands = bindList.map(({ tagName, pageIds }) => {
-    const mergePageJson = pageIdsToBindDictString(pageIds)
-    return updateStmt.bind(tagName, mergePageJson, mergePageJson, tagName)
-  })
+    commands.push(createTagStmt.bind(tagName))
 
-  const unbindCommands = unbindList.map(({ tagName, pageIds }) => {
-    const mergePageJson = pageIdsToUnbindDictString(pageIds)
-    return updateStmt.bind(tagName, mergePageJson, mergePageJson, tagName)
-  })
+    // Then bind each page to the tag
+    for (const pageId of pageIds) {
+      const bindStmt = DB.prepare(`
+        INSERT INTO page_tags (page_id, tag_id)
+        SELECT ?, id FROM tags WHERE name = ?
+        ON CONFLICT DO NOTHING
+      `)
+      commands.push(bindStmt.bind(pageId, tagName))
+    }
+  }
 
-  return bindCommands.concat(unbindCommands)
+  // Unbind pages from tags
+  for (const { tagName, pageIds } of unbindList) {
+    for (const pageId of pageIds) {
+      const unbindStmt = DB.prepare(`
+        DELETE FROM page_tags 
+        WHERE page_id = ? AND tag_id = (SELECT id FROM tags WHERE name = ?)
+      `)
+      commands.push(unbindStmt.bind(pageId, tagName))
+    }
+  }
+
+  return commands
 }
 
 async function updateBindPageByTagName(
@@ -121,22 +144,6 @@ async function updateBindPageByTagName(
 
   const updateResult = await DB.batch(commands)
   return updateResult.every(result => result.success)
-}
-
-function pageIdsToBindDictString(pageIds: Array<number>) {
-  const dict = pageIds.reduce((acc, cur) => {
-    acc[cur.toString()] = cur
-    return acc
-  }, {})
-  return JSON.stringify(dict)
-}
-
-function pageIdsToUnbindDictString(pageIds: Array<number>) {
-  const dict = pageIds.reduce((acc, cur) => {
-    acc[cur.toString()] = null
-    return acc
-  }, {})
-  return JSON.stringify(dict)
 }
 
 export {

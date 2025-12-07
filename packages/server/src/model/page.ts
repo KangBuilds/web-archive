@@ -23,7 +23,7 @@ async function selectPageTotalCount(DB: D1Database, options: { folderId?: number
   }
 
   if (isNotNil(tagId)) {
-    sql += ` AND id IN (SELECT value FROM json_each((SELECT pageIdDict FROM tags WHERE id = ?)))`
+    sql += ` AND id IN (SELECT page_id FROM page_tags WHERE tag_id = ?)`
     bindParams.push(tagId)
   }
 
@@ -71,7 +71,7 @@ async function queryPage(DB: D1Database, options: { folderId?: number, pageNumbe
   }
 
   if (isNotNil(tagId)) {
-    sql += ` AND id IN (SELECT value FROM json_each((SELECT pageIdDict FROM tags WHERE id = ?)))`
+    sql += ` AND id IN (SELECT page_id FROM page_tags WHERE tag_id = ?)`
     bindParams.push(tagId)
   }
 
