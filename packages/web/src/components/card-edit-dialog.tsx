@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { useOutletContext } from 'react-router-dom'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Plus, X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,8 @@ function CardEditDialogComponent({
   const { handleSearch } = useOutletContext<{ handleSearch: () => void }>()
   const { tagCache, refreshTagCache } = useContext(TagContext)
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+  const [newTagInput, setNewTagInput] = useState('')
+  const [newTags, setNewTags] = useState<string[]>([])
 
   const {
     register,
@@ -121,8 +123,58 @@ function CardEditDialogComponent({
         tag.pageIds.includes(pageId),
       )
       setSelectedTagIds(initialTags?.map(t => t.id) || [])
+      // Reset new tags
+      setNewTags([])
+      setNewTagInput('')
     }
   }, [pageDetail, pageId, tagCache, reset])
+
+  const handleAddNewTag = () => {
+    const trimmedTag = newTagInput.trim()
+    if (!trimmedTag)
+      return
+
+    // Check if tag already exists in cache or new tags
+    const existsInCache = tagCache?.some(t => t.name.toLowerCase() === trimmedTag.toLowerCase())
+    const existsInNewTags = newTags.some(t => t.toLowerCase() === trimmedTag.toLowerCase())
+
+    if (existsInCache) {
+      // If it exists in cache, just select it
+      const existingTag = tagCache?.find(t => t.name.toLowerCase() === trimmedTag.toLowerCase())
+      if (existingTag && !selectedTagIds.includes(existingTag.id)) {
+        setSelectedTagIds([...selectedTagIds, existingTag.id])
+        const wasOriginallySelected = existingTag.pageIds.includes(pageId)
+        if (!wasOriginallySelected) {
+          setValue('bindTags', [...watch('bindTags'), existingTag.name])
+          setValue('unbindTags', watch('unbindTags').filter(t => t !== existingTag.name))
+        }
+      }
+      setNewTagInput('')
+      return
+    }
+
+    if (existsInNewTags) {
+      setNewTagInput('')
+      return
+    }
+
+    // Add new tag
+    setNewTags([...newTags, trimmedTag])
+    setValue('bindTags', [...watch('bindTags'), trimmedTag])
+    setNewTagInput('')
+  }
+
+  const handleRemoveNewTag = (tagName: string) => {
+    setNewTags(newTags.filter(t => t !== tagName))
+    setValue('bindTags', watch('bindTags').filter(t => t !== tagName))
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAddNewTag()
+    }
+  }
 
   const handleTagToggle = (tagId: number) => {
     const isCurrentlySelected = selectedTagIds.includes(tagId)
@@ -162,6 +214,8 @@ function CardEditDialogComponent({
       pageUrl: data.pageUrl,
       folderId: Number.parseInt(data.folderId),
       isShowcased: 0,
+      bindTags: data.bindTags,
+      unbindTags: data.unbindTags,
     })
   }
 
@@ -258,9 +312,37 @@ function CardEditDialogComponent({
                       {tag.name}
                     </Badge>
                   ))}
-                  {(!tagCache || tagCache.length === 0) && (
-                    <p className="text-sm text-muted-foreground">No tags available</p>
-                  )}
+                  {newTags.map(tagName => (
+                    <Badge
+                      key={tagName}
+                      variant="default"
+                      className="cursor-pointer gap-1"
+                    >
+                      {tagName}
+                      <X
+                        className="h-3 w-3"
+                        onClick={() => handleRemoveNewTag(tagName)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add new tag..."
+                    value={newTagInput}
+                    onChange={e => setNewTagInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={handleAddNewTag}
+                    disabled={!newTagInput.trim()}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 

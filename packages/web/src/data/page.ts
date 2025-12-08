@@ -46,6 +46,8 @@ function updatePage(body: {
   isShowcased: number
   pageDesc?: string
   pageUrl?: string
+  bindTags?: string[]
+  unbindTags?: string[]
 }): Promise<Page> {
   return fetcher<Page>('/pages/update_page', {
     method: 'PUT',
