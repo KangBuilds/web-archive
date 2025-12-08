@@ -65,7 +65,7 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'var(--font-sans)', ...fontFamily.sans],
+        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       keyframes: {
         'fade-in': {

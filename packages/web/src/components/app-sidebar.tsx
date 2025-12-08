@@ -10,7 +10,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -40,9 +40,10 @@ import { Button } from '@web-archive/shared/components/ui/button'
 import { Link, useNavigate, useParams } from '~/router'
 import { createFolder, deleteFolder, getAllFolder, updateFolder } from '~/data/folder'
 import { deleteTag, getAllTag, updateTag } from '~/data/tag'
-import NewFolderDialog from '~/components/new-folder-dialog'
-import EditFolderDialog from '~/components/edit-folder-dialog'
-import EditTagDialog from '~/components/edit-tag-dialog'
+
+const NewFolderDialog = lazy(() => import('~/components/new-folder-dialog'))
+const EditFolderDialog = lazy(() => import('~/components/edit-folder-dialog'))
+const EditTagDialog = lazy(() => import('~/components/edit-tag-dialog'))
 
 interface AppSidebarProps {
   selectedTag: number | null
@@ -329,35 +330,43 @@ export default function AppSidebar({
         </SidebarFooter>
       </Sidebar>
 
-      {/* Dialogs */}
-      <NewFolderDialog
-        open={newFolderOpen}
-        onOpenChange={setNewFolderOpen}
-        onSubmit={name => createFolderMutation.mutate(name)}
-        loading={createFolderMutation.isPending}
-      />
+      {/* Dialogs - lazy loaded */}
+      <Suspense fallback={null}>
+        {newFolderOpen && (
+          <NewFolderDialog
+            open={newFolderOpen}
+            onOpenChange={setNewFolderOpen}
+            onSubmit={name => createFolderMutation.mutate(name)}
+            loading={createFolderMutation.isPending}
+          />
+        )}
 
-      <EditFolderDialog
-        open={editFolderId !== null}
-        onOpenChange={open => !open && setEditFolderId(null)}
-        folderName={editFolderName}
-        onFolderNameChange={setEditFolderName}
-        onSubmit={() =>
-          editFolderId
-          && updateFolderMutation.mutate({ id: editFolderId, name: editFolderName })}
-        loading={updateFolderMutation.isPending}
-      />
+        {editFolderId !== null && (
+          <EditFolderDialog
+            open={editFolderId !== null}
+            onOpenChange={open => !open && setEditFolderId(null)}
+            folderName={editFolderName}
+            onFolderNameChange={setEditFolderName}
+            onSubmit={() =>
+              editFolderId
+              && updateFolderMutation.mutate({ id: editFolderId, name: editFolderName })}
+            loading={updateFolderMutation.isPending}
+          />
+        )}
 
-      <EditTagDialog
-        open={editTagId !== null}
-        onOpenChange={open => !open && setEditTagId(null)}
-        tagName={editTagName}
-        onTagNameChange={setEditTagName}
-        onSubmit={() =>
-          editTagId
-          && updateTagMutation.mutate({ id: editTagId, name: editTagName })}
-        loading={updateTagMutation.isPending}
-      />
+        {editTagId !== null && (
+          <EditTagDialog
+            open={editTagId !== null}
+            onOpenChange={open => !open && setEditTagId(null)}
+            tagName={editTagName}
+            onTagNameChange={setEditTagName}
+            onSubmit={() =>
+              editTagId
+              && updateTagMutation.mutate({ id: editTagId, name: editTagName })}
+            loading={updateTagMutation.isPending}
+          />
+        )}
+      </Suspense>
     </>
   )
 }

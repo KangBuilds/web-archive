@@ -1,4 +1,4 @@
-import { memo, useContext, useState } from 'react'
+import { Suspense, lazy, memo, useContext, useState } from 'react'
 import { ExternalLink, MoreVertical, Pencil, Trash2 } from 'lucide-react'
 import type { Page } from '@web-archive/shared/types'
 import {
@@ -18,7 +18,8 @@ import {
 import TagContext from '~/store/tag'
 import { Link } from '~/router'
 import ScreenshotView from '~/components/screenshot-view'
-import CardEditDialog from '~/components/card-edit-dialog'
+
+const CardEditDialog = lazy(() => import('~/components/card-edit-dialog'))
 
 interface PageCardProps {
   page: Page
@@ -50,11 +51,15 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
 
   return (
     <>
-      <CardEditDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        pageId={page.id}
-      />
+      {editDialogOpen && (
+        <Suspense fallback={null}>
+          <CardEditDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            pageId={page.id}
+          />
+        </Suspense>
+      )}
 
       <Card className="group overflow-hidden transition-all hover:shadow-lg">
         <Link
