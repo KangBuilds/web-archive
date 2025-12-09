@@ -263,8 +263,13 @@ export default function AppSidebar({
                   <SidebarMenuItem key={tag.id}>
                     <SidebarMenuButton
                       isActive={selectedTag === tag.id}
-                      onClick={() =>
-                        setSelectedTag(selectedTag === tag.id ? null : tag.id)}
+                      onClick={() => {
+                        const newTag = selectedTag === tag.id ? null : tag.id
+                        setSelectedTag(newTag)
+                        if (newTag !== null) {
+                          navigate('/')
+                        }
+                      }}
                     >
                       <Hash className="size-4" />
                       <span>{tag.name}</span>
