@@ -107,6 +107,21 @@ function CardEditDialogComponent({
     },
   })
 
+  // Reset form to defaults when pageId changes (before new data loads)
+  useEffect(() => {
+    reset({
+      title: '',
+      pageDesc: '',
+      pageUrl: '',
+      folderId: '',
+      bindTags: [],
+      unbindTags: [],
+    })
+    setSelectedTagIds([])
+    setNewTags([])
+    setNewTagInput('')
+  }, [pageId, reset])
+
   // Set form values when page detail is loaded
   useEffect(() => {
     if (pageDetail && folders.length > 0) {
