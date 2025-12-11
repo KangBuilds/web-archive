@@ -109,12 +109,12 @@ function CardEditDialogComponent({
 
   // Set form values when page detail is loaded
   useEffect(() => {
-    if (pageDetail) {
+    if (pageDetail && folders.length > 0) {
       reset({
         title: pageDetail.title,
         pageDesc: pageDetail.pageDesc || '',
         pageUrl: pageDetail.pageUrl,
-        folderId: pageDetail.folderId.toString(),
+        folderId: pageDetail.folderId?.toString() ?? '',
         bindTags: [],
         unbindTags: [],
       })
@@ -127,7 +127,7 @@ function CardEditDialogComponent({
       setNewTags([])
       setNewTagInput('')
     }
-  }, [pageDetail, pageId, tagCache, reset])
+  }, [pageDetail, folders, pageId, tagCache, reset])
 
   const handleAddNewTag = () => {
     const trimmedTag = newTagInput.trim()
