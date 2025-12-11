@@ -3,11 +3,11 @@
 - [简体中文](https://github.com/ray-d-song/web-archive/blob/main/docs/README_zh.md)
 - [English](https://github.com/ray-d-song/web-archive/blob/main/README.md)
 
-## Web Archive
+## Knowledge
 
 ![showcase](https://raw.githubusercontent.com/ray-d-song/web-archive/main/docs/imgs/homepage.png)
 
-Web Archive is a free web archiving and sharing service based on Cloudflare, including the following parts:  
+Knowledge is your personal knowledge library - capture, organize, and preserve knowledge. It includes the following parts:  
 
 - Browser plugin: Save the webpage as a single html file and upload it to the server.
 - Server: Receive the html file uploaded by the browser plugin and store it in the database and storage bucket.

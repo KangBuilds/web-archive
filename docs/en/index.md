@@ -3,9 +3,9 @@
 layout: home
 
 hero:
-  name: "Web Archive"
+  name: "Knowledge"
   text: ""
-  tagline: Free web archiving and sharing service based on Cloudflare.
+  tagline: Your personal knowledge library - capture, organize, and preserve knowledge.
   actions:
     - theme: brand
       text: Quick Start

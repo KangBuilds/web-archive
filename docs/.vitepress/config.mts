@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Web Archive",
-  description: "Free web archiving and sharing service based on Cloudflare.",
+  title: "Knowledge",
+  description: "Your personal knowledge library - capture, organize, and preserve knowledge.",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
 

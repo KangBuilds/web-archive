@@ -20,7 +20,7 @@ app.get('/', async (c) => {
   <script type="module" src="/static/index.js"></script>
   <link rel="stylesheet" href="/static/index.css">
   <link rel="icon" href="/static/logo.svg" />
-  <title>Web Archive</title>
+  <title>Knowledge</title>
 </head>
 <body>
   <div id="root"></div>

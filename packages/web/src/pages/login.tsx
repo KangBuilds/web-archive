@@ -67,9 +67,9 @@ export default function LoginPage() {
               <Archive className="h-7 w-7 text-primary" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold">Web Archive</CardTitle>
+              <CardTitle className="text-2xl font-bold">Knowledge</CardTitle>
               <CardDescription className="text-base">
-                Your personal library of preserved web pages
+                Your personal knowledge library
               </CardDescription>
             </div>
           </CardHeader>

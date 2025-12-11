@@ -1,8 +1,8 @@
-## Web Archive
+## Knowledge
 
 ![showcase](https://raw.githubusercontent.com/ray-d-song/web-archive/main/docs/imgs/homepage.png)
 
-Web Archive 是一个网页归档工具，包含以下几个部分：
+Knowledge 是您的个人知识库 - 捕捉、整理和保存您的知识。包含以下几个部分：
 
 - 浏览器插件：将网页保存为网页快照，并上传到服务端。
 - 服务端：   接收浏览器插件上传的快照，并存储在数据库和存储桶中。

@@ -3,9 +3,9 @@
 layout: home
 
 hero:
-  name: "Web Archive"
+  name: "Knowledge"
   text: ""
-  tagline: 免费网页归档和分享工具，基于 Cloudflare。
+  tagline: 您的个人知识库 - 捕捉、整理和保存您的知识。
   actions:
     - theme: brand
       text: 快速开始
