@@ -158,7 +158,19 @@ app.get('/share/:code', async (c) => {
     )
   }
 
-  c.res.headers.set('cache-control', 'public, max-age=3600')
+  // Don't cache pages with expiration to ensure expired links become inaccessible immediately
+  // For non-expiring links, use a short cache to balance performance and freshness
+  if (shareLink.expiresAt) {
+    // Calculate remaining time until expiration
+    const expiresAt = new Date(shareLink.expiresAt)
+    const now = new Date()
+    const remainingSeconds = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / 1000))
+    // Use private cache with remaining time, minimum 0 seconds
+    c.res.headers.set('cache-control', `private, max-age=${remainingSeconds}`)
+  } else {
+    // Non-expiring links can use a moderate public cache
+    c.res.headers.set('cache-control', 'public, max-age=3600')
+  }
   return c.html(await content.text())
 })
 
