@@ -30,4 +30,12 @@ type Tag = {
   updatedAt: Date
 }
 
-export type { Page, Folder, Tag }
+type ShareLink = {
+  id: number
+  pageId: number
+  shareCode: string
+  expiresAt: Date | null
+  createdAt: Date
+}
+
+export type { Page, Folder, Tag, ShareLink }

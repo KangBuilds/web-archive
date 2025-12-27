@@ -1,5 +1,5 @@
 import { Suspense, lazy, memo, useContext, useState } from 'react'
-import { ExternalLink, MoreVertical, Pencil, Trash2 } from 'lucide-react'
+import { ExternalLink, MoreVertical, Pencil, Share2, Trash2 } from 'lucide-react'
 import type { Page } from '@web-archive/shared/types'
 import {
   Card,
@@ -20,6 +20,7 @@ import { Link } from '~/router'
 import ScreenshotView from '~/components/screenshot-view'
 
 const CardEditDialog = lazy(() => import('~/components/card-edit-dialog'))
+const ShareDialog = lazy(() => import('~/components/share-dialog'))
 
 interface PageCardProps {
   page: Page
@@ -31,6 +32,7 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
   const bindTags = tagCache?.filter(tag => tag.pageIds.includes(page.id)) ?? []
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this page?')) {
@@ -49,6 +51,10 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
     setEditDialogOpen(true)
   }
 
+  const handleShare = () => {
+    setShareDialogOpen(true)
+  }
+
   return (
     <>
       {editDialogOpen && (
@@ -57,6 +63,16 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
             open={editDialogOpen}
             onOpenChange={setEditDialogOpen}
             pageId={page.id}
+          />
+        </Suspense>
+      )}
+      {shareDialogOpen && (
+        <Suspense fallback={null}>
+          <ShareDialog
+            open={shareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            pageId={page.id}
+            pageTitle={page.title}
           />
         </Suspense>
       )}
@@ -136,6 +152,10 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
               <DropdownMenuItem onClick={handleEdit}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleShare}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleOpenOriginal}>
                 <ExternalLink className="mr-2 h-4 w-4" />

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Download, Maximize2, Minimize2, Moon, Sun, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, Maximize2, Minimize2, Moon, Share2, Sun, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@web-archive/shared/components/ui/button'
 import {
@@ -14,6 +14,8 @@ import { useSidebar } from '@web-archive/shared/components/ui/sidebar'
 import { useNavigate, useParams } from '~/router'
 import { deletePage, getPageDetail } from '~/data/page'
 import { useTheme } from '~/components/theme-provider'
+
+const ShareDialog = lazy(() => import('~/components/share-dialog'))
 
 async function getPageContent(pageId: string | undefined) {
   if (!pageId)
@@ -46,6 +48,7 @@ export default function ArchivePage() {
   const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
   const sidebarWasOpen = useRef(sidebarOpen)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
@@ -139,9 +142,20 @@ export default function ArchivePage() {
   }, [setSidebarOpen])
 
   return (
-    <main className="flex h-svh flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4">
+    <>
+      {shareDialogOpen && pageDetail && (
+        <Suspense fallback={null}>
+          <ShareDialog
+            open={shareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            pageId={pageDetail.id}
+            pageTitle={pageDetail.title}
+          />
+        </Suspense>
+      )}
+      <main className="flex h-svh flex-col">
+        {/* Header */}
+        <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4">
         <div className="flex items-center gap-4">
           <TooltipProvider>
             <Tooltip>
@@ -182,6 +196,19 @@ export default function ArchivePage() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Download HTML</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Share button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setShareDialogOpen(true)}>
+                  <Share2 className="h-4 w-4" />
+                  <span className="sr-only">Share page</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Share page</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
@@ -261,5 +288,6 @@ export default function ArchivePage() {
             )}
       </div>
     </main>
+    </>
   )
 }

@@ -6,5 +6,13 @@ type Tag = {
   updatedAt: Date
 }
 
+type ShareLink = {
+  id: number
+  pageId: number
+  shareCode: string
+  expiresAt: Date | null
+  createdAt: Date
+}
+
 export type { Page, Folder } from '@web-archive/shared/types/model'
-export type { Tag }
+export type { Tag, ShareLink }
