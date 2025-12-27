@@ -76,11 +76,11 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
         </Suspense>
       )}
 
-      <Card className="group overflow-hidden transition-all hover:shadow-lg">
+      <Card className="group flex h-full flex-col overflow-hidden transition-all hover:shadow-lg">
         <Link
           to="/page/:slug"
           params={{ slug: page.id.toString() }}
-          className="block"
+          className="block flex-1"
         >
           {/* Screenshot */}
           <div className="relative aspect-video overflow-hidden bg-muted">
