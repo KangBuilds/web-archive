@@ -28,6 +28,7 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from '@web-archive/shared/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -162,6 +163,7 @@ export default function AppSidebar({
                   </div>
                 </Link>
               </SidebarMenuButton>
+              <SidebarTrigger className="ml-auto" />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>

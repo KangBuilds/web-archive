@@ -1,8 +1,6 @@
 import { Moon, Search, Sun, X } from 'lucide-react'
 import { Button } from '@web-archive/shared/components/ui/button'
 import { Input } from '@web-archive/shared/components/ui/input'
-import { SidebarTrigger } from '@web-archive/shared/components/ui/sidebar'
-import { Separator } from '@web-archive/shared/components/ui/separator'
 import { useTheme } from '~/components/theme-provider'
 
 interface PageHeaderProps {
@@ -37,8 +35,6 @@ export default function PageHeader({
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="h-4" />
       <div className="flex flex-1 items-center gap-2">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
