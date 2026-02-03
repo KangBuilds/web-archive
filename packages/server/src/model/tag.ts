@@ -5,9 +5,10 @@ async function selectAllTags(DB: D1Database) {
   const sql = `
     SELECT 
       tags.*,
-      GROUP_CONCAT(page_tags.page_id) as page_ids
+      GROUP_CONCAT(CASE WHEN pages.isDeleted = 0 THEN page_tags.page_id END) as page_ids
     FROM tags
     LEFT JOIN page_tags ON tags.id = page_tags.tag_id
+    LEFT JOIN pages ON page_tags.page_id = pages.id
     GROUP BY tags.id
   `
   const sqlResult = await DB.prepare(sql).all<Tag & { page_ids: string }>()
@@ -27,9 +28,10 @@ async function getTagById(DB: D1Database, id: number) {
   const sql = `
     SELECT 
       tags.*,
-      GROUP_CONCAT(page_tags.page_id) as page_ids
+      GROUP_CONCAT(CASE WHEN pages.isDeleted = 0 THEN page_tags.page_id END) as page_ids
     FROM tags
     LEFT JOIN page_tags ON tags.id = page_tags.tag_id
+    LEFT JOIN pages ON page_tags.page_id = pages.id
     WHERE tags.id = ?
     GROUP BY tags.id
   `

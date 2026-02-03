@@ -259,7 +259,7 @@ export default function AppSidebar({
             <SidebarGroupLabel>Tags</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {tags.map(tag => (
+                {tags.filter(tag => tag.pageIds.length > 0).map(tag => (
                   <SidebarMenuItem key={tag.id}>
                     <SidebarMenuButton
                       isActive={selectedTag === tag.id}
@@ -310,7 +310,7 @@ export default function AppSidebar({
                     </DropdownMenu>
                   </SidebarMenuItem>
                 ))}
-                {tags.length === 0 && (
+                {tags.filter(tag => tag.pageIds.length > 0).length === 0 && (
                   <div className="px-2 py-4 text-xs text-muted-foreground text-center">
                     No tags yet
                   </div>
