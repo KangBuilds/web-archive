@@ -105,8 +105,8 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
                 {bindTags.slice(0, 3).map(tag => (
                   <Badge
                     key={tag.id}
-                    variant="secondary"
-                    className="text-xs font-normal"
+                    className="text-xs font-normal text-white"
+                    style={{ backgroundColor: tag.color }}
                   >
                     {tag.name}
                   </Badge>

@@ -25,6 +25,7 @@ type Folder = {
 type Tag = {
   id: number
   name: string
+  color: string
   pageIds: Array<number>
   createdAt: Date
   updatedAt: Date

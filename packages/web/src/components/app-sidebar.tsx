@@ -271,7 +271,7 @@ export default function AppSidebar({
                         }
                       }}
                     >
-                      <Hash className="size-4" />
+                      <Hash className="size-4" style={{ color: tag.color }} />
                       <span>{tag.name}</span>
                     </SidebarMenuButton>
                     <DropdownMenu>
