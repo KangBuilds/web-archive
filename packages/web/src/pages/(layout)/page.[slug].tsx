@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Download, Maximize2, Minimize2, Moon, Share2, Sun, Trash2 } from 'lucide-react'
+import { ArrowLeft, Download, Maximize2, Minimize2, Moon, Share2, StickyNote, Sun, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@web-archive/shared/components/ui/button'
 import {
@@ -16,6 +16,7 @@ import { deletePage, getPageDetail } from '~/data/page'
 import { useTheme } from '~/components/theme-provider'
 
 const ShareDialog = lazy(() => import('~/components/share-dialog'))
+const NoteEditDialog = lazy(() => import('~/components/note-edit-dialog'))
 
 async function getPageContent(pageId: string | undefined) {
   if (!pageId)
@@ -49,6 +50,7 @@ export default function ArchivePage() {
   const sidebarWasOpen = useRef(sidebarOpen)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
@@ -153,6 +155,15 @@ export default function ArchivePage() {
           />
         </Suspense>
       )}
+      {noteDialogOpen && pageDetail && (
+        <Suspense fallback={null}>
+          <NoteEditDialog
+            open={noteDialogOpen}
+            onOpenChange={setNoteDialogOpen}
+            page={pageDetail}
+          />
+        </Suspense>
+      )}
       <main className="flex h-svh flex-col">
         {/* Header */}
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4">
@@ -196,6 +207,19 @@ export default function ArchivePage() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Download HTML</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* Note button */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setNoteDialogOpen(true)}>
+                  <StickyNote className="h-4 w-4" />
+                  <span className="sr-only">Edit note</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edit note</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
