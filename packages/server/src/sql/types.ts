@@ -1,7 +1,7 @@
 type Tag = {
   id: number
   name: string
-  pageIdDict: string
+  color: string
   createdAt: Date
   updatedAt: Date
 }

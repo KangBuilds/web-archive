@@ -87,7 +87,7 @@ The migrations will be automatically applied when you push to main/preview branc
 
 ## Backward Compatibility
 
-The `tags.pageIdDict` column is kept for backward compatibility but is no longer used. In a future migration, it can be safely removed by recreating the tags table without this column.
+The deprecated `tags.pageIdDict` column has been removed in migration 0008. All tag-page relationships are now stored in the `page_tags` junction table.
 
 ---
 
