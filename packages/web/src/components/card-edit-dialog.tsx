@@ -42,6 +42,7 @@ const formSchema = z.object({
   pageDesc: z.string(),
   pageUrl: z.string().min(1, 'Page URL is required'),
   folderId: z.string(),
+  note: z.string().nullable(),
   bindTags: z.array(z.string()),
   unbindTags: z.array(z.string()),
 })
@@ -74,6 +75,7 @@ function CardEditDialogComponent({
       pageDesc: '',
       pageUrl: '',
       folderId: '',
+      note: null,
       bindTags: [],
       unbindTags: [],
     },
@@ -114,6 +116,7 @@ function CardEditDialogComponent({
       pageDesc: '',
       pageUrl: '',
       folderId: '',
+      note: null,
       bindTags: [],
       unbindTags: [],
     })
@@ -130,6 +133,7 @@ function CardEditDialogComponent({
         pageDesc: pageDetail.pageDesc || '',
         pageUrl: pageDetail.pageUrl,
         folderId: pageDetail.folderId?.toString() ?? '',
+        note: pageDetail.note ?? null,
         bindTags: [],
         unbindTags: [],
       })
@@ -229,6 +233,7 @@ function CardEditDialogComponent({
       pageUrl: data.pageUrl,
       folderId: Number.parseInt(data.folderId),
       isShowcased: 0,
+      note: data.note,
       bindTags: data.bindTags,
       unbindTags: data.unbindTags,
     })
@@ -291,6 +296,16 @@ function CardEditDialogComponent({
                     {errors.pageUrl.message}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="note">Note</Label>
+                <Textarea
+                  id="note"
+                  {...register('note')}
+                  placeholder="Add your personal notes (optional)"
+                  rows={3}
+                />
               </div>
 
               <div className="space-y-2">

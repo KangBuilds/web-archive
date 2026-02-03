@@ -1,0 +1,2 @@
+-- Migration number: 0008 	 2026-02-03
+ALTER TABLE pages ADD COLUMN note TEXT DEFAULT NULL;

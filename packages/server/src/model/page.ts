@@ -53,7 +53,8 @@ async function queryPage(DB: D1Database, options: { folderId?: number, pageNumbe
       screenshotId,
       createdAt,
       updatedAt,
-      isShowcased
+      isShowcased,
+      note
     FROM pages
     WHERE isDeleted = 0
   `
@@ -166,12 +167,13 @@ interface UpdatePageOptions {
   isShowcased: boolean
   pageDesc: string
   pageUrl: string
+  note?: string | null
   bindTags?: Array<TagBindRecord>
   unbindTags?: Array<TagBindRecord>
 }
 
 async function updatePage(DB: D1Database, options: UpdatePageOptions) {
-  const { id, folderId, title, isShowcased, pageDesc, pageUrl, bindTags = [], unbindTags = [] } = options
+  const { id, folderId, title, isShowcased, pageDesc, pageUrl, note, bindTags = [], unbindTags = [] } = options
   const sql = `
     UPDATE pages
     SET
@@ -179,10 +181,11 @@ async function updatePage(DB: D1Database, options: UpdatePageOptions) {
       title = ?,
       isShowcased = ?,
       pageDesc = ?,
-      pageUrl = ?
+      pageUrl = ?,
+      note = ?
     WHERE id = ?
   `
-  const updateSql = DB.prepare(sql).bind(folderId, title, isShowcased, pageDesc, pageUrl, id)
+  const updateSql = DB.prepare(sql).bind(folderId, title, isShowcased, pageDesc, pageUrl, note ?? null, id)
   const updateSqlList = generateUpdateTagSql(DB, bindTags, unbindTags)
   const result = await DB.batch([updateSql, ...updateSqlList])
   return result.every(r => r.success)

@@ -46,6 +46,7 @@ function updatePage(body: {
   isShowcased: number
   pageDesc?: string
   pageUrl?: string
+  note?: string | null
   bindTags?: string[]
   unbindTags?: string[]
 }): Promise<Page> {

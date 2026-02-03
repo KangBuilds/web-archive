@@ -265,18 +265,19 @@ app.put(
       isShowcased: value.isShowcased,
       pageDesc: value.pageDesc ?? '',
       pageUrl: value.pageUrl ?? '',
+      note: value.note as string | null | undefined,
       bindTags: value.bindTags as string[] ?? [],
       unbindTags: value.unbindTags as string[] ?? [],
     }
   }),
   async (c) => {
-    const { id, folderId, title, isShowcased, pageDesc, pageUrl, bindTags, unbindTags } = c.req.valid('json')
+    const { id, folderId, title, isShowcased, pageDesc, pageUrl, note, bindTags, unbindTags } = c.req.valid('json')
     if (isNil(folderId))
       return c.json(result.success(null))
 
     const bindTagParams = bindTags.map(tagName => ({ tagName, pageIds: [id] }))
     const unbindTagParams = unbindTags.map(tagName => ({ tagName, pageIds: [id] }))
-    const updateSuccess = await updatePage(c.env.DB, { id, folderId, title, isShowcased, pageDesc, pageUrl, bindTags: bindTagParams, unbindTags: unbindTagParams })
+    const updateSuccess = await updatePage(c.env.DB, { id, folderId, title, isShowcased, pageDesc, pageUrl, note, bindTags: bindTagParams, unbindTags: unbindTagParams })
     if (updateSuccess)
       return c.json(result.success(null))
 
