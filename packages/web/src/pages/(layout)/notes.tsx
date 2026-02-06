@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { ExternalLink, StickyNote } from 'lucide-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { ExternalLink, RefreshCw, StickyNote } from 'lucide-react'
 import type { Page } from '@web-archive/shared/types'
 import { ScrollArea } from '@web-archive/shared/components/ui/scroll-area'
 import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
@@ -8,13 +8,13 @@ import {
   Card,
   CardContent,
 } from '@web-archive/shared/components/ui/card'
-import { Badge } from '@web-archive/shared/components/ui/badge'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@web-archive/shared/components/ui/tooltip'
+import { Button } from '@web-archive/shared/components/ui/button'
 import { SidebarTrigger } from '@web-archive/shared/components/ui/sidebar'
 import { getPagesWithNotes } from '~/data/page'
 import { Link } from '~/router'
@@ -102,11 +102,16 @@ function EmptyState() {
 
 export default function NotesPage() {
   const [filter, setFilter] = useState('')
+  const queryClient = useQueryClient()
 
-  const { data: pages = [], isLoading } = useQuery({
+  const { data: pages = [], isLoading, isFetching } = useQuery({
     queryKey: ['pages-with-notes'],
     queryFn: getPagesWithNotes,
   })
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['pages-with-notes'] })
+  }
 
   const filteredPages = useMemo(() => {
     if (!filter)
@@ -124,24 +129,31 @@ export default function NotesPage() {
       {/* Header */}
       <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4">
         <SidebarTrigger />
-        <div className="flex items-center gap-2">
-          <StickyNote className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-lg font-semibold">All Notes</h1>
-          {!isLoading && (
-            <Badge variant="secondary" className="ml-1">{pages.length}</Badge>
-          )}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleRefresh}
+                disabled={isFetching}
+              >
+                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <span className="sr-only">Refresh</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh notes</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <div className="flex-1 max-w-md">
+          <input
+            type="text"
+            className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            placeholder="Filter notes..."
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+          />
         </div>
-        {pages.length > 0 && (
-          <div className="ml-auto max-w-xs flex-1">
-            <input
-              type="text"
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              placeholder="Filter notes..."
-              value={filter}
-              onChange={e => setFilter(e.target.value)}
-            />
-          </div>
-        )}
       </header>
 
       {/* Content */}
