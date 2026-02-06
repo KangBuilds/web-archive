@@ -30,26 +30,21 @@ export default function ScreenshotView({
   }
 
   return (
-    <>
-      {status === 'loading' && <Skeleton className={cn(loadingClassName)} />}
+    <div className={cn('relative', loadingClassName)}>
+      {status === 'loading' && <Skeleton className="absolute inset-0" />}
       {status === 'error' && (
-        <div
-          className={cn(
-            'flex items-center justify-center bg-muted',
-            loadingClassName,
-          )}
-        >
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <ImageOff className="h-8 w-8 text-muted-foreground/50" />
         </div>
       )}
       <img
         src={`/api/pages/screenshot?id=${screenshotId}`}
         alt="Page screenshot"
-        className={cn(className, status !== 'loaded' && 'hidden')}
+        className={cn(className, status !== 'loaded' && 'opacity-0')}
         loading="lazy"
         onLoad={() => setStatus('loaded')}
         onError={() => setStatus('error')}
       />
-    </>
+    </div>
   )
 }
