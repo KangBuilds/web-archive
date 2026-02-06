@@ -61,12 +61,24 @@ function CardEditDialogComponent({
   const [newTagInput, setNewTagInput] = useState('')
   const [newTags, setNewTags] = useState<string[]>([])
 
+  // Queries (must be before useForm so pageDetail is available for `values`)
+  const { data: pageDetail, isLoading: pageLoading } = useQuery({
+    queryKey: ['page-detail', pageId],
+    queryFn: () => getPageDetail(pageId.toString()),
+    enabled: open,
+  })
+
+  const { data: folders = [], isLoading: foldersLoading } = useQuery({
+    queryKey: ['folders'],
+    queryFn: getAllFolder,
+    enabled: open,
+  })
+
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    reset,
     control,
     formState: { errors },
   } = useForm<FormData>({
@@ -80,19 +92,20 @@ function CardEditDialogComponent({
       bindTags: [],
       unbindTags: [],
     },
-  })
-
-  // Queries
-  const { data: pageDetail, isLoading: pageLoading } = useQuery({
-    queryKey: ['page-detail', pageId],
-    queryFn: () => getPageDetail(pageId.toString()),
-    enabled: open,
-  })
-
-  const { data: folders = [], isLoading: foldersLoading } = useQuery({
-    queryKey: ['folders'],
-    queryFn: getAllFolder,
-    enabled: open,
+    values: pageDetail
+      ? {
+          title: pageDetail.title,
+          pageDesc: pageDetail.pageDesc || '',
+          pageUrl: pageDetail.pageUrl,
+          folderId: pageDetail.folderId != null ? pageDetail.folderId.toString() : '',
+          note: pageDetail.note ?? null,
+          bindTags: [],
+          unbindTags: [],
+        }
+      : undefined,
+    resetOptions: {
+      keepDirtyValues: true,
+    },
   })
 
   // Mutation
@@ -108,44 +121,17 @@ function CardEditDialogComponent({
     },
   })
 
-  // Reset form to defaults when pageId changes (before new data loads)
-  useEffect(() => {
-    reset({
-      title: '',
-      pageDesc: '',
-      pageUrl: '',
-      folderId: '',
-      note: null,
-      bindTags: [],
-      unbindTags: [],
-    })
-    setSelectedTagIds([])
-    setNewTags([])
-    setNewTagInput('')
-  }, [pageId, reset])
-
-  // Set form values when page detail is loaded
+  // Initialize tag selection when page detail is loaded
   useEffect(() => {
     if (pageDetail) {
-      reset({
-        title: pageDetail.title,
-        pageDesc: pageDetail.pageDesc || '',
-        pageUrl: pageDetail.pageUrl,
-        folderId: pageDetail.folderId != null ? pageDetail.folderId.toString() : '',
-        note: pageDetail.note ?? null,
-        bindTags: [],
-        unbindTags: [],
-      })
-      // Set initially selected tags
       const initialTags = tagCache?.filter(tag =>
         tag.pageIds.includes(pageId),
       )
       setSelectedTagIds(initialTags?.map(t => t.id) || [])
-      // Reset new tags
       setNewTags([])
       setNewTagInput('')
     }
-  }, [pageDetail, pageId, tagCache, reset])
+  }, [pageDetail, pageId, tagCache])
 
   const handleAddNewTag = () => {
     const trimmedTag = newTagInput.trim()
@@ -163,8 +149,8 @@ function CardEditDialogComponent({
         setSelectedTagIds([...selectedTagIds, existingTag.id])
         const wasOriginallySelected = existingTag.pageIds.includes(pageId)
         if (!wasOriginallySelected) {
-          setValue('bindTags', [...watch('bindTags'), existingTag.name])
-          setValue('unbindTags', watch('unbindTags').filter(t => t !== existingTag.name))
+          setValue('bindTags', [...watch('bindTags'), existingTag.name], { shouldDirty: true })
+          setValue('unbindTags', watch('unbindTags').filter(t => t !== existingTag.name), { shouldDirty: true })
         }
       }
       setNewTagInput('')
@@ -178,13 +164,13 @@ function CardEditDialogComponent({
 
     // Add new tag
     setNewTags([...newTags, trimmedTag])
-    setValue('bindTags', [...watch('bindTags'), trimmedTag])
+    setValue('bindTags', [...watch('bindTags'), trimmedTag], { shouldDirty: true })
     setNewTagInput('')
   }
 
   const handleRemoveNewTag = (tagName: string) => {
     setNewTags(newTags.filter(t => t !== tagName))
-    setValue('bindTags', watch('bindTags').filter(t => t !== tagName))
+    setValue('bindTags', watch('bindTags').filter(t => t !== tagName), { shouldDirty: true })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -204,10 +190,11 @@ function CardEditDialogComponent({
       setSelectedTagIds(selectedTagIds.filter(id => id !== tagId))
       if (wasOriginallySelected) {
         const tagName = tagCache?.find(t => t.id === tagId)?.name || ''
-        setValue('unbindTags', [...watch('unbindTags'), tagName])
+        setValue('unbindTags', [...watch('unbindTags'), tagName], { shouldDirty: true })
         setValue(
           'bindTags',
           watch('bindTags').filter(t => t !== tagName),
+          { shouldDirty: true },
         )
       }
     }
@@ -215,10 +202,11 @@ function CardEditDialogComponent({
       setSelectedTagIds([...selectedTagIds, tagId])
       if (!wasOriginallySelected) {
         const tagName = tagCache?.find(t => t.id === tagId)?.name || ''
-        setValue('bindTags', [...watch('bindTags'), tagName])
+        setValue('bindTags', [...watch('bindTags'), tagName], { shouldDirty: true })
         setValue(
           'unbindTags',
           watch('unbindTags').filter(t => t !== tagName),
+          { shouldDirty: true },
         )
       }
     }
