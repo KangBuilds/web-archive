@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from '@web-archive/shared/components/ui/select'
 import { Badge } from '@web-archive/shared/components/ui/badge'
-import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import TagContext from '~/store/tag'
 import { getPageDetail, updatePage } from '~/data/page'
 import { getAllFolder } from '~/data/folder'
@@ -352,10 +351,10 @@ function CardEditDialogComponent({
     enabled: open,
   })
 
-  const isLoading = pageLoading || foldersLoading
+  const isDataReady = !pageLoading && !foldersLoading && !!pageDetail
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open && isDataReady} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Edit Page</DialogTitle>
@@ -364,24 +363,15 @@ function CardEditDialogComponent({
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading || !pageDetail
-          ? (
-            <div className="space-y-4 py-4">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          )
-          : (
-            <CardEditForm
-              key={pageDetail.id}
-              pageDetail={pageDetail}
-              folders={folders}
-              pageId={pageId}
-              onOpenChange={onOpenChange}
-            />
-          )}
+        {pageDetail && (
+          <CardEditForm
+            key={pageDetail.id}
+            pageDetail={pageDetail}
+            folders={folders}
+            pageId={pageId}
+            onOpenChange={onOpenChange}
+          />
+        )}
       </DialogContent>
     </Dialog>
   )
