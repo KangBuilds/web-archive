@@ -8,6 +8,7 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
+  StickyNote,
   Trash2,
 } from 'lucide-react'
 import { Suspense, lazy, useEffect, useState } from 'react'
@@ -176,6 +177,14 @@ export default function AppSidebar({
                     <Link to="/" onClick={() => setSelectedTag(null)}>
                       <Home className="size-4" />
                       <span>Home</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive('/notes')}>
+                    <Link to="/notes" onClick={() => setSelectedTag(null)}>
+                      <StickyNote className="size-4" />
+                      <span>Notes</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

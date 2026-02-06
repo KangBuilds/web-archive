@@ -70,6 +70,12 @@ function queryAllPageIds(folderId: number): Promise<number[]> {
   })
 }
 
+function getPagesWithNotes(): Promise<Page[]> {
+  return fetcher<Page[]>('/pages/notes', {
+    method: 'GET',
+  })
+}
+
 export {
   getPageDetail,
   deletePage,
@@ -77,4 +83,5 @@ export {
   updatePage,
   getRecentSavePage,
   queryAllPageIds,
+  getPagesWithNotes,
 }

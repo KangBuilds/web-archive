@@ -4,7 +4,7 @@ import { isNil, isNotNil, isNumberString } from '@web-archive/shared/utils'
 import { z } from 'zod'
 import type { HonoTypeUserInformation } from '~/constants/binding'
 import result from '~/utils/result'
-import { deletePageById, getPageById, insertPage, queryAllPageIds, queryPage, queryPageByUrl, queryRecentSavePage, selectPageTotalCount, updatePage } from '~/model/page'
+import { deletePageById, getPageById, insertPage, queryAllPageIds, queryPage, queryPageByUrl, queryPagesWithNotes, queryRecentSavePage, selectPageTotalCount, updatePage } from '~/model/page'
 import { getFileFromBucket, saveFileToBucket } from '~/utils/file'
 import { updateBindPageByTagName } from '~/model/tag'
 
@@ -182,6 +182,11 @@ app.post(
 
 app.get('/recent_save', async (c) => {
   const pages = await queryRecentSavePage(c.env.DB)
+  return c.json(result.success(pages))
+})
+
+app.get('/notes', async (c) => {
+  const pages = await queryPagesWithNotes(c.env.DB)
   return c.json(result.success(pages))
 })
 

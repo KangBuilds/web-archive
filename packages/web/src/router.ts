@@ -8,6 +8,7 @@ export type Path =
   | `/error/:slug`
   | `/folder/:slug`
   | `/login`
+  | `/notes`
   | `/page/:slug`
 
 export type Params = {

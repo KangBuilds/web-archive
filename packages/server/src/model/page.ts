@@ -198,6 +198,33 @@ async function queryAllPageIds(DB: D1Database, folderId: number) {
   return result.results.map(r => r.id)
 }
 
+async function queryPagesWithNotes(DB: D1Database) {
+  const sql = `
+    SELECT
+      id,
+      title,
+      contentUrl,
+      pageUrl,
+      folderId,
+      pageDesc,
+      screenshotId,
+      createdAt,
+      updatedAt,
+      isShowcased,
+      note
+    FROM pages
+    WHERE isDeleted = 0
+      AND note IS NOT NULL
+      AND note != ''
+    ORDER BY updatedAt DESC
+  `
+  const result = await DB.prepare(sql).all<Page>()
+  if (result.error) {
+    throw result.error
+  }
+  return result.results
+}
+
 export {
   selectPageTotalCount,
   queryPage,
@@ -209,4 +236,5 @@ export {
   selectAllPageCount,
   updatePage,
   queryAllPageIds,
+  queryPagesWithNotes,
 }
