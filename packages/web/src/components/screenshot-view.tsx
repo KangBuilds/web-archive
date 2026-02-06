@@ -1,9 +1,7 @@
-import { useEffect, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { ImageOff } from 'lucide-react'
 import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
 import { cn } from '@web-archive/shared/utils'
-import { getPageScreenshot } from '~/data/page'
 
 interface ScreenshotViewProps {
   screenshotId: string | null
@@ -16,31 +14,9 @@ export default function ScreenshotView({
   className,
   loadingClassName,
 }: ScreenshotViewProps) {
-  const { data: blob, isLoading, isError } = useQuery({
-    queryKey: ['screenshot', screenshotId],
-    queryFn: () => getPageScreenshot(screenshotId)(),
-    enabled: !!screenshotId,
-  })
+  const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading')
 
-  // Create object URL from blob data, recreating it when blob changes
-  // This properly handles React Query's cached data on re-navigation
-  const objectURL = useMemo(() => {
-    if (!blob)
-      return null
-    return URL.createObjectURL(blob)
-  }, [blob])
-
-  // Cleanup object URL when component unmounts or URL changes
-  useEffect(() => {
-    return () => {
-      if (objectURL) {
-        URL.revokeObjectURL(objectURL)
-      }
-    }
-  }, [objectURL])
-
-  // Show placeholder if no screenshotId, error occurred, or no screenshot data returned
-  if (!screenshotId || isError || (!isLoading && !blob)) {
+  if (!screenshotId) {
     return (
       <div
         className={cn(
@@ -53,16 +29,27 @@ export default function ScreenshotView({
     )
   }
 
-  if (isLoading || !objectURL) {
-    return <Skeleton className={cn(loadingClassName)} />
-  }
-
   return (
-    <img
-      src={objectURL}
-      alt="Page screenshot"
-      className={cn(className)}
-      loading="lazy"
-    />
+    <>
+      {status === 'loading' && <Skeleton className={cn(loadingClassName)} />}
+      {status === 'error' && (
+        <div
+          className={cn(
+            'flex items-center justify-center bg-muted',
+            loadingClassName,
+          )}
+        >
+          <ImageOff className="h-8 w-8 text-muted-foreground/50" />
+        </div>
+      )}
+      <img
+        src={`/api/pages/screenshot?id=${screenshotId}`}
+        alt="Page screenshot"
+        className={cn(className, status !== 'loaded' && 'hidden')}
+        loading="lazy"
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
+      />
+    </>
   )
 }

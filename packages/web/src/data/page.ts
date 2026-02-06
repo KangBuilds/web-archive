@@ -1,5 +1,4 @@
 import type { Page } from '@web-archive/shared/types'
-import { isNil } from '@web-archive/shared/utils'
 import fetcher from '~/utils/fetcher'
 
 function getPageDetail(id: string): Promise<Page> {
@@ -56,29 +55,6 @@ function updatePage(body: {
   })
 }
 
-function getPageScreenshot(screenshotId: string | null) {
-  return async () => {
-    if (isNil(screenshotId))
-      return null
-    const res = await fetch(`/api/pages/screenshot?id=${screenshotId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'image/webp',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-    if (!res.ok) {
-      return null
-    }
-    const blob = await res.blob()
-    // Check if the blob has content (empty responses indicate no screenshot)
-    if (blob.size === 0) {
-      return null
-    }
-    return blob
-  }
-}
-
 function getRecentSavePage(): Promise<Page[]> {
   return fetcher<Page[]>('/pages/recent_save', {
     method: 'GET',
@@ -99,7 +75,6 @@ export {
   deletePage,
   queryPage,
   updatePage,
-  getPageScreenshot,
   getRecentSavePage,
   queryAllPageIds,
 }
