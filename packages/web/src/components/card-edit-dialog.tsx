@@ -1,4 +1,4 @@
-import { memo, useContext, useEffect, useState } from 'react'
+import { memo, useContext, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -6,6 +6,7 @@ import { useOutletContext } from 'react-router-dom'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Plus, X } from 'lucide-react'
+import type { Folder, Page } from '@web-archive/shared/types'
 import {
   Dialog,
   DialogContent,
@@ -49,30 +50,22 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
-function CardEditDialogComponent({
-  open,
-  onOpenChange,
-  pageId,
-}: CardEditDialogProps) {
+interface CardEditFormProps {
+  pageDetail: Page
+  folders: Folder[]
+  pageId: number
+  onOpenChange: (open: boolean) => void
+}
+
+function CardEditForm({ pageDetail, folders, pageId, onOpenChange }: CardEditFormProps) {
   const queryClient = useQueryClient()
   const { handleSearch } = useOutletContext<{ handleSearch: () => void }>()
   const { tagCache, refreshTagCache } = useContext(TagContext)
-  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([])
+
+  const initialTags = tagCache?.filter(tag => tag.pageIds.includes(pageId))
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>(initialTags?.map(t => t.id) || [])
   const [newTagInput, setNewTagInput] = useState('')
   const [newTags, setNewTags] = useState<string[]>([])
-
-  // Queries (must be before useForm so pageDetail is available for `values`)
-  const { data: pageDetail, isLoading: pageLoading } = useQuery({
-    queryKey: ['page-detail', pageId],
-    queryFn: () => getPageDetail(pageId.toString()),
-    enabled: open,
-  })
-
-  const { data: folders = [], isLoading: foldersLoading } = useQuery({
-    queryKey: ['folders'],
-    queryFn: getAllFolder,
-    enabled: open,
-  })
 
   const {
     register,
@@ -84,27 +77,13 @@ function CardEditDialogComponent({
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: '',
-      pageDesc: '',
-      pageUrl: '',
-      folderId: '',
-      note: null,
+      title: pageDetail.title,
+      pageDesc: pageDetail.pageDesc || '',
+      pageUrl: pageDetail.pageUrl,
+      folderId: pageDetail.folderId != null ? pageDetail.folderId.toString() : '',
+      note: pageDetail.note ?? null,
       bindTags: [],
       unbindTags: [],
-    },
-    values: pageDetail
-      ? {
-          title: pageDetail.title,
-          pageDesc: pageDetail.pageDesc || '',
-          pageUrl: pageDetail.pageUrl,
-          folderId: pageDetail.folderId != null ? pageDetail.folderId.toString() : '',
-          note: pageDetail.note ?? null,
-          bindTags: [],
-          unbindTags: [],
-        }
-      : undefined,
-    resetOptions: {
-      keepDirtyValues: true,
     },
   })
 
@@ -120,18 +99,6 @@ function CardEditDialogComponent({
       onOpenChange(false)
     },
   })
-
-  // Initialize tag selection when page detail is loaded
-  useEffect(() => {
-    if (pageDetail) {
-      const initialTags = tagCache?.filter(tag =>
-        tag.pageIds.includes(pageId),
-      )
-      setSelectedTagIds(initialTags?.map(t => t.id) || [])
-      setNewTags([])
-      setNewTagInput('')
-    }
-  }, [pageDetail, pageId, tagCache])
 
   const handleAddNewTag = () => {
     const trimmedTag = newTagInput.trim()
@@ -149,8 +116,8 @@ function CardEditDialogComponent({
         setSelectedTagIds([...selectedTagIds, existingTag.id])
         const wasOriginallySelected = existingTag.pageIds.includes(pageId)
         if (!wasOriginallySelected) {
-          setValue('bindTags', [...watch('bindTags'), existingTag.name], { shouldDirty: true })
-          setValue('unbindTags', watch('unbindTags').filter(t => t !== existingTag.name), { shouldDirty: true })
+          setValue('bindTags', [...watch('bindTags'), existingTag.name])
+          setValue('unbindTags', watch('unbindTags').filter(t => t !== existingTag.name))
         }
       }
       setNewTagInput('')
@@ -164,13 +131,13 @@ function CardEditDialogComponent({
 
     // Add new tag
     setNewTags([...newTags, trimmedTag])
-    setValue('bindTags', [...watch('bindTags'), trimmedTag], { shouldDirty: true })
+    setValue('bindTags', [...watch('bindTags'), trimmedTag])
     setNewTagInput('')
   }
 
   const handleRemoveNewTag = (tagName: string) => {
     setNewTags(newTags.filter(t => t !== tagName))
-    setValue('bindTags', watch('bindTags').filter(t => t !== tagName), { shouldDirty: true })
+    setValue('bindTags', watch('bindTags').filter(t => t !== tagName))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -190,11 +157,10 @@ function CardEditDialogComponent({
       setSelectedTagIds(selectedTagIds.filter(id => id !== tagId))
       if (wasOriginallySelected) {
         const tagName = tagCache?.find(t => t.id === tagId)?.name || ''
-        setValue('unbindTags', [...watch('unbindTags'), tagName], { shouldDirty: true })
+        setValue('unbindTags', [...watch('unbindTags'), tagName])
         setValue(
           'bindTags',
           watch('bindTags').filter(t => t !== tagName),
-          { shouldDirty: true },
         )
       }
     }
@@ -202,11 +168,10 @@ function CardEditDialogComponent({
       setSelectedTagIds([...selectedTagIds, tagId])
       if (!wasOriginallySelected) {
         const tagName = tagCache?.find(t => t.id === tagId)?.name || ''
-        setValue('bindTags', [...watch('bindTags'), tagName], { shouldDirty: true })
+        setValue('bindTags', [...watch('bindTags'), tagName])
         setValue(
           'unbindTags',
           watch('unbindTags').filter(t => t !== tagName),
-          { shouldDirty: true },
         )
       }
     }
@@ -226,6 +191,167 @@ function CardEditDialogComponent({
     })
   }
 
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          {...register('title')}
+          placeholder="Enter page title"
+        />
+        {errors.title && (
+          <p className="text-sm text-destructive">{errors.title.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="pageDesc">Description</Label>
+        <Textarea
+          id="pageDesc"
+          {...register('pageDesc')}
+          placeholder="Enter page description"
+          rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="pageUrl">Page URL</Label>
+        <Input
+          id="pageUrl"
+          {...register('pageUrl')}
+          placeholder="Enter page URL"
+        />
+        {errors.pageUrl && (
+          <p className="text-sm text-destructive">
+            {errors.pageUrl.message}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="note">Note</Label>
+        <Textarea
+          id="note"
+          {...register('note')}
+          placeholder="Add your personal notes (optional)"
+          rows={3}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="folder">Folder</Label>
+        <Controller
+          name="folderId"
+          control={control}
+          render={({ field }) => (
+            <Select
+              value={field.value}
+              onValueChange={field.onChange}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a folder" />
+              </SelectTrigger>
+              <SelectContent>
+                {folders.map(folder => (
+                  <SelectItem key={folder.id} value={folder.id.toString()}>
+                    {folder.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.folderId && (
+          <p className="text-sm text-destructive">{errors.folderId.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Tags</Label>
+        <div className="flex flex-wrap gap-2">
+          {tagCache?.map(tag => (
+            <Badge
+              key={tag.id}
+              variant={
+                selectedTagIds.includes(tag.id) ? 'default' : 'outline'
+              }
+              className="cursor-pointer"
+              onClick={() => handleTagToggle(tag.id)}
+            >
+              {tag.name}
+            </Badge>
+          ))}
+          {newTags.map(tagName => (
+            <Badge
+              key={tagName}
+              variant="default"
+              className="cursor-pointer gap-1"
+            >
+              {tagName}
+              <X
+                className="h-3 w-3"
+                onClick={() => handleRemoveNewTag(tagName)}
+              />
+            </Badge>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Add new tag..."
+            value={newTagInput}
+            onChange={e => setNewTagInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleAddNewTag}
+            disabled={!newTagInput.trim()}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={updatePageMutation.isPending}>
+          {updatePageMutation.isPending && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          Save changes
+        </Button>
+      </DialogFooter>
+    </form>
+  )
+}
+
+function CardEditDialogComponent({
+  open,
+  onOpenChange,
+  pageId,
+}: CardEditDialogProps) {
+  const { data: pageDetail, isLoading: pageLoading } = useQuery({
+    queryKey: ['page-detail', pageId],
+    queryFn: () => getPageDetail(pageId.toString()),
+    enabled: open,
+  })
+
+  const { data: folders = [], isLoading: foldersLoading } = useQuery({
+    queryKey: ['folders'],
+    queryFn: getAllFolder,
+    enabled: open,
+  })
+
   const isLoading = pageLoading || foldersLoading
 
   return (
@@ -238,7 +364,7 @@ function CardEditDialogComponent({
           </DialogDescription>
         </DialogHeader>
 
-        {isLoading
+        {isLoading || !pageDetail
           ? (
             <div className="space-y-4 py-4">
               <Skeleton className="h-10 w-full" />
@@ -248,146 +374,13 @@ function CardEditDialogComponent({
             </div>
           )
           : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  {...register('title')}
-                  placeholder="Enter page title"
-                />
-                {errors.title && (
-                  <p className="text-sm text-destructive">{errors.title.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="pageDesc">Description</Label>
-                <Textarea
-                  id="pageDesc"
-                  {...register('pageDesc')}
-                  placeholder="Enter page description"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="pageUrl">Page URL</Label>
-                <Input
-                  id="pageUrl"
-                  {...register('pageUrl')}
-                  placeholder="Enter page URL"
-                />
-                {errors.pageUrl && (
-                  <p className="text-sm text-destructive">
-                    {errors.pageUrl.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="note">Note</Label>
-                <Textarea
-                  id="note"
-                  {...register('note')}
-                  placeholder="Add your personal notes (optional)"
-                  rows={3}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="folder">Folder</Label>
-                <Controller
-                  name="folderId"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a folder" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {folders.map(folder => (
-                          <SelectItem key={folder.id} value={folder.id.toString()}>
-                            {folder.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.folderId && (
-                  <p className="text-sm text-destructive">{errors.folderId.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tags</Label>
-                <div className="flex flex-wrap gap-2">
-                  {tagCache?.map(tag => (
-                    <Badge
-                      key={tag.id}
-                      variant={
-                        selectedTagIds.includes(tag.id) ? 'default' : 'outline'
-                      }
-                      className="cursor-pointer"
-                      onClick={() => handleTagToggle(tag.id)}
-                    >
-                      {tag.name}
-                    </Badge>
-                  ))}
-                  {newTags.map(tagName => (
-                    <Badge
-                      key={tagName}
-                      variant="default"
-                      className="cursor-pointer gap-1"
-                    >
-                      {tagName}
-                      <X
-                        className="h-3 w-3"
-                        onClick={() => handleRemoveNewTag(tagName)}
-                      />
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add new tag..."
-                    value={newTagInput}
-                    onChange={e => setNewTagInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={handleAddNewTag}
-                    disabled={!newTagInput.trim()}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updatePageMutation.isPending}>
-                  {updatePageMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Save changes
-                </Button>
-              </DialogFooter>
-            </form>
+            <CardEditForm
+              key={pageDetail.id}
+              pageDetail={pageDetail}
+              folders={folders}
+              pageId={pageId}
+              onOpenChange={onOpenChange}
+            />
           )}
       </DialogContent>
     </Dialog>
