@@ -86,6 +86,7 @@ export default function LoginPage() {
                     onChange={e => setKey(e.target.value)}
                     className="pr-10"
                     autoComplete="current-password"
+                    autoFocus
                   />
                   <button
                     type="button"
