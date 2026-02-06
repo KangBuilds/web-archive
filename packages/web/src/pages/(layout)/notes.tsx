@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ExternalLink, RefreshCw, StickyNote } from 'lucide-react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ExternalLink, Loader2, RefreshCw, StickyNote, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Page } from '@web-archive/shared/types'
 import { ScrollArea } from '@web-archive/shared/components/ui/scroll-area'
 import { Skeleton } from '@web-archive/shared/components/ui/skeleton'
@@ -16,10 +17,10 @@ import {
 } from '@web-archive/shared/components/ui/tooltip'
 import { Button } from '@web-archive/shared/components/ui/button'
 import { SidebarTrigger } from '@web-archive/shared/components/ui/sidebar'
-import { getPagesWithNotes } from '~/data/page'
+import { getPagesWithNotes, updatePage } from '~/data/page'
 import { Link } from '~/router'
 
-function NoteCard({ page }: { page: Page }) {
+function NoteCard({ page, onDelete, isDeleting }: { page: Page, onDelete: (page: Page) => void, isDeleting: boolean }) {
   return (
     <Card className="transition-all hover:shadow-lg">
       <CardContent className="p-5">
@@ -29,10 +30,29 @@ function NoteCard({ page }: { page: Page }) {
             <Link
               to="/page/:slug"
               params={{ slug: page.id.toString() }}
-              className="text-base font-semibold leading-tight hover:text-primary hover:underline truncate"
+              className="text-base font-semibold leading-tight hover:text-primary hover:underline truncate flex-1"
             >
               {page.title}
             </Link>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => onDelete(page)}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : <Trash2 className="h-4 w-4" />}
+                    <span className="sr-only">Delete note</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete note</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Note content */}
@@ -102,12 +122,43 @@ function EmptyState() {
 
 export default function NotesPage() {
   const [filter, setFilter] = useState('')
+  const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
   const queryClient = useQueryClient()
 
   const { data: pages = [], isLoading, isFetching } = useQuery({
     queryKey: ['pages-with-notes'],
     queryFn: getPagesWithNotes,
   })
+
+  const deleteNoteMutation = useMutation({
+    mutationFn: (page: Page) =>
+      updatePage({
+        id: page.id,
+        folderId: page.folderId,
+        title: page.title,
+        isShowcased: page.isShowcased,
+        pageDesc: page.pageDesc,
+        pageUrl: page.pageUrl,
+        note: null,
+      }),
+    onMutate: (page) => {
+      setDeletingPageId(page.id)
+    },
+    onSuccess: () => {
+      toast.success('Note deleted')
+      queryClient.invalidateQueries({ queryKey: ['pages-with-notes'] })
+    },
+    onError: () => {
+      toast.error('Failed to delete note')
+    },
+    onSettled: () => {
+      setDeletingPageId(null)
+    },
+  })
+
+  const handleDeleteNote = (page: Page) => {
+    deleteNoteMutation.mutate(page)
+  }
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ['pages-with-notes'] })
@@ -166,7 +217,7 @@ export default function NotesPage() {
               : (
                   <div className="space-y-4">
                     {filteredPages.map(page => (
-                      <NoteCard key={page.id} page={page} />
+                      <NoteCard key={page.id} page={page} onDelete={handleDeleteNote} isDeleting={deletingPageId === page.id} />
                     ))}
                   </div>
                 )}
