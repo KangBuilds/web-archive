@@ -146,9 +146,7 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
               </TooltipTrigger>
               <TooltipContent>Edit</TooltipContent>
             </Tooltip>
-          </TooltipProvider>
 
-          <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -163,9 +161,7 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
               </TooltipTrigger>
               <TooltipContent>Share</TooltipContent>
             </Tooltip>
-          </TooltipProvider>
 
-          <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -180,9 +176,7 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
               </TooltipTrigger>
               <TooltipContent>Open original</TooltipContent>
             </Tooltip>
-          </TooltipProvider>
 
-          <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
