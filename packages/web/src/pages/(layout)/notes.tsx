@@ -15,7 +15,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@web-archive/shared/components/ui/tooltip'
-import { Button } from '@web-archive/shared/components/ui/button'
 import { SidebarTrigger } from '@web-archive/shared/components/ui/sidebar'
 import { getPagesWithNotes } from '~/data/page'
 import { Link } from '~/router'
@@ -24,66 +23,49 @@ function NoteCard({ page }: { page: Page }) {
   return (
     <Card className="transition-all hover:shadow-lg">
       <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1 space-y-2">
-            {/* Page title as link */}
-            <div className="flex items-center gap-2">
-              <Link
-                to="/page/:slug"
-                params={{ slug: page.id.toString() }}
-                className="text-base font-semibold leading-tight hover:text-primary hover:underline truncate"
-              >
-                {page.title}
-              </Link>
-            </div>
-
-            {/* Note content */}
-            <div className="rounded-md bg-muted/50 p-3">
-              <p className="whitespace-pre-wrap text-sm text-foreground">
-                {page.note}
-              </p>
-            </div>
-
-            {/* Meta: original URL and date */}
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              {page.pageUrl && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href={page.pageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-foreground truncate max-w-xs"
-                      >
-                        <ExternalLink className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{page.pageUrl}</span>
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">{page.pageUrl}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-              <span>
-                {new Date(page.updatedAt).toLocaleDateString()}
-              </span>
-            </div>
+        <div className="space-y-2">
+          {/* Page title as link */}
+          <div className="flex items-center gap-2">
+            <Link
+              to="/page/:slug"
+              params={{ slug: page.id.toString() }}
+              className="text-base font-semibold leading-tight hover:text-primary hover:underline truncate"
+            >
+              {page.title}
+            </Link>
           </div>
 
-          {/* Action: view archived page */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0" asChild>
-                  <Link to="/page/:slug" params={{ slug: page.id.toString() }}>
-                    <StickyNote className="h-4 w-4" />
-                    <span className="sr-only">View page</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>View archived page</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* Note content */}
+          <div className="rounded-md bg-muted/50 p-3">
+            <p className="whitespace-pre-wrap text-sm text-foreground">
+              {page.note}
+            </p>
+          </div>
+
+          {/* Meta: original URL and date */}
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            {page.pageUrl && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a
+                      href={page.pageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:text-foreground truncate max-w-xs"
+                    >
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{page.pageUrl}</span>
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{page.pageUrl}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            <span className="ml-auto">
+              {new Date(page.updatedAt).toLocaleDateString()}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>
