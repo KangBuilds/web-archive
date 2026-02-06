@@ -1,5 +1,5 @@
 import { memo, useContext, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useOutletContext } from 'react-router-dom'
@@ -67,6 +67,7 @@ function CardEditDialogComponent({
     setValue,
     watch,
     reset,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -80,8 +81,6 @@ function CardEditDialogComponent({
       unbindTags: [],
     },
   })
-
-  const folderId = watch('folderId')
 
   // Queries
   const { data: pageDetail, isLoading: pageLoading } = useQuery({
@@ -310,21 +309,27 @@ function CardEditDialogComponent({
 
               <div className="space-y-2">
                 <Label htmlFor="folder">Folder</Label>
-                <Select
-                  value={folderId}
-                  onValueChange={value => setValue('folderId', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a folder" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {folders.map(folder => (
-                      <SelectItem key={folder.id} value={folder.id.toString()}>
-                        {folder.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="folderId"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a folder" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {folders.map(folder => (
+                          <SelectItem key={folder.id} value={folder.id.toString()}>
+                            {folder.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.folderId && (
                   <p className="text-sm text-destructive">{errors.folderId.message}</p>
                 )}
