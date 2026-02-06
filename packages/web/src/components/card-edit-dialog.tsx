@@ -126,7 +126,7 @@ function CardEditDialogComponent({
 
   // Set form values when page detail is loaded
   useEffect(() => {
-    if (pageDetail && folders.length > 0) {
+    if (pageDetail) {
       reset({
         title: pageDetail.title,
         pageDesc: pageDetail.pageDesc || '',
@@ -145,7 +145,7 @@ function CardEditDialogComponent({
       setNewTags([])
       setNewTagInput('')
     }
-  }, [pageDetail, folders, pageId, tagCache, reset])
+  }, [pageDetail, pageId, tagCache, reset])
 
   const handleAddNewTag = () => {
     const trimmedTag = newTagInput.trim()
@@ -258,7 +258,7 @@ function CardEditDialogComponent({
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-10 w-full" />
             </div>
-            )
+          )
           : (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
@@ -342,8 +342,8 @@ function CardEditDialogComponent({
                     <Badge
                       key={tag.id}
                       variant={
-                      selectedTagIds.includes(tag.id) ? 'default' : 'outline'
-                    }
+                        selectedTagIds.includes(tag.id) ? 'default' : 'outline'
+                      }
                       className="cursor-pointer"
                       onClick={() => handleTagToggle(tag.id)}
                     >
@@ -400,7 +400,7 @@ function CardEditDialogComponent({
                 </Button>
               </DialogFooter>
             </form>
-            )}
+          )}
       </DialogContent>
     </Dialog>
   )
