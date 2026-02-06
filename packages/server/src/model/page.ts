@@ -19,7 +19,7 @@ async function selectPageTotalCount(DB: D1Database, options: { folderId?: number
 
   if (keyword) {
     sql += ` AND title LIKE ?`
-    bindParams.push(`${keyword}%`)
+    bindParams.push(`%${keyword}%`)
   }
 
   if (isNotNil(tagId)) {
@@ -61,7 +61,6 @@ async function queryPage(DB: D1Database, options: { folderId?: number, pageNumbe
   const bindParams: (number | string)[] = []
 
   if (isNotNil(folderId)) {
-    console.log('folderId', folderId)
     sql += ` AND folderId = ?`
     bindParams.push(folderId)
   }
