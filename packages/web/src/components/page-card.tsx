@@ -52,8 +52,8 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
     window.open(page.pageUrl, '_blank')
   }
 
-  const handleEdit = async () => {
-    await refreshTagCache()
+  const handleEdit = () => {
+    refreshTagCache()
     setEditDialogOpen(true)
   }
 
