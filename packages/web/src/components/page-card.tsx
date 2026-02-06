@@ -1,5 +1,6 @@
-import { Suspense, lazy, memo, useContext, useState } from 'react'
+import { Suspense, lazy, memo, useCallback, useContext, useState } from 'react'
 import { ExternalLink, Pencil, Share2, Trash2 } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 import type { Page } from '@web-archive/shared/types'
 import {
   Card,
@@ -17,6 +18,8 @@ import {
 import TagContext from '~/store/tag'
 import { Link } from '~/router'
 import ScreenshotView from '~/components/screenshot-view'
+import { getPageDetail } from '~/data/page'
+import { getAllFolder } from '~/data/folder'
 
 const CardEditDialog = lazy(() => import('~/components/card-edit-dialog'))
 const ShareDialog = lazy(() => import('~/components/share-dialog'))
@@ -27,6 +30,7 @@ interface PageCardProps {
 }
 
 function PageCardComponent({ page, onDelete }: PageCardProps) {
+  const queryClient = useQueryClient()
   const { tagCache, refreshTagCache } = useContext(TagContext)
   const bindTags = tagCache?.filter(tag => tag.pageIds.includes(page.id)) ?? []
 
@@ -45,7 +49,21 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
     window.open(page.pageUrl, '_blank')
   }
 
+  const prefetchEditData = useCallback(() => {
+    queryClient.prefetchQuery({
+      queryKey: ['page-detail', page.id],
+      queryFn: () => getPageDetail(page.id.toString()),
+      staleTime: 30_000,
+    })
+    queryClient.prefetchQuery({
+      queryKey: ['folders'],
+      queryFn: getAllFolder,
+      staleTime: 30_000,
+    })
+  }, [queryClient, page.id])
+
   const handleEdit = async () => {
+    prefetchEditData()
     await refreshTagCache()
     setEditDialogOpen(true)
   }
@@ -139,6 +157,7 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
                   size="icon"
                   className="h-8 w-8"
                   onClick={handleEdit}
+                  onMouseEnter={prefetchEditData}
                 >
                   <Pencil className="h-4 w-4" />
                   <span className="sr-only">Edit</span>
