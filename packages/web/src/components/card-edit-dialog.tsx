@@ -41,7 +41,7 @@ const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   pageDesc: z.string(),
   pageUrl: z.string().min(1, 'Page URL is required'),
-  folderId: z.string(),
+  folderId: z.string().min(1, 'Folder is required'),
   note: z.string().nullable(),
   bindTags: z.array(z.string()),
   unbindTags: z.array(z.string()),
@@ -132,7 +132,7 @@ function CardEditDialogComponent({
         title: pageDetail.title,
         pageDesc: pageDetail.pageDesc || '',
         pageUrl: pageDetail.pageUrl,
-        folderId: pageDetail.folderId?.toString() ?? '',
+        folderId: pageDetail.folderId != null ? pageDetail.folderId.toString() : '',
         note: pageDetail.note ?? null,
         bindTags: [],
         unbindTags: [],
@@ -325,6 +325,9 @@ function CardEditDialogComponent({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.folderId && (
+                  <p className="text-sm text-destructive">{errors.folderId.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">

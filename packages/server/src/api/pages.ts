@@ -278,7 +278,7 @@ app.put(
   async (c) => {
     const { id, folderId, title, isShowcased, pageDesc, pageUrl, note, bindTags, unbindTags } = c.req.valid('json')
     if (isNil(folderId))
-      return c.json(result.success(null))
+      return c.json(result.error(400, 'Folder ID is required'))
 
     const bindTagParams = bindTags.map(tagName => ({ tagName, pageIds: [id] }))
     const unbindTagParams = unbindTags.map(tagName => ({ tagName, pageIds: [id] }))
