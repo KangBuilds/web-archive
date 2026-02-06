@@ -40,4 +40,8 @@ type ShareLink = {
   createdAt: Date
 }
 
-export type { Page, Folder, Tag, ShareLink }
+type ShareLinkWithPage = ShareLink & {
+  pageTitle: string
+}
+
+export type { Page, Folder, Tag, ShareLink, ShareLinkWithPage }

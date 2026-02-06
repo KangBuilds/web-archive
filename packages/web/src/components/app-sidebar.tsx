@@ -4,6 +4,7 @@ import {
   FolderOpen,
   Hash,
   Home,
+  Link2,
   LogOut,
   MoreHorizontal,
   Pencil,
@@ -185,6 +186,14 @@ export default function AppSidebar({
                     <Link to="/notes" onClick={() => setSelectedTag(null)}>
                       <StickyNote className="size-4" />
                       <span>Notes</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive('/shares')}>
+                    <Link to="/shares" onClick={() => setSelectedTag(null)}>
+                      <Link2 className="size-4" />
+                      <span>Shared Links</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

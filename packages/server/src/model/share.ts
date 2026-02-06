@@ -56,6 +56,19 @@ async function getShareLinksByPageId(
   return result.results
 }
 
+async function getAllShareLinks(
+  DB: D1Database,
+): Promise<(ShareLink & { pageTitle: string })[]> {
+  const sql = `
+    SELECT s.*, p.title as pageTitle
+    FROM share_links s
+    LEFT JOIN pages p ON s.pageId = p.id
+    ORDER BY s.createdAt DESC
+  `
+  const result = await DB.prepare(sql).all<ShareLink & { pageTitle: string }>()
+  return result.results
+}
+
 async function deleteShareLink(DB: D1Database, id: number): Promise<boolean> {
   const sql = `DELETE FROM share_links WHERE id = ?`
   const result = await DB.prepare(sql).bind(id).run()
@@ -82,6 +95,7 @@ export {
   createShareLink,
   getShareLinkByCode,
   getShareLinksByPageId,
+  getAllShareLinks,
   deleteShareLink,
   deleteShareLinksByPageId,
   isShareLinkExpired,

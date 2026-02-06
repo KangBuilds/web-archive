@@ -10,6 +10,7 @@ export type Path =
   | `/login`
   | `/notes`
   | `/page/:slug`
+  | `/shares`
 
 export type Params = {
   '/error/:slug': { slug: string }

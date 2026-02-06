@@ -6,6 +6,7 @@ import result from '~/utils/result'
 import {
   createShareLink,
   deleteShareLink,
+  getAllShareLinks,
   getShareLinksByPageId,
 } from '~/model/share'
 
@@ -45,6 +46,14 @@ app.post(
     }
 
     return c.json(result.success(shareLink))
+  },
+)
+
+app.get(
+  '/all',
+  async (c) => {
+    const shareLinks = await getAllShareLinks(c.env.DB)
+    return c.json(result.success(shareLinks))
   },
 )
 
