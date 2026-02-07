@@ -170,7 +170,7 @@ export default function AppSidebar({
                   <div className="flex flex-col gap-0.5 leading-none">
                     <span className="font-semibold">Knowledge</span>
                     <span className="text-xs text-muted-foreground">
-                      look, then leap
+                      Look, then leap
                     </span>
                   </div>
                 </Link>
