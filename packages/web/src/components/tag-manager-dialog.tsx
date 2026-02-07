@@ -51,7 +51,7 @@ function ColorPicker({ color, onChange }: ColorPickerProps) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="size-7 rounded border border-border shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+          className="size-7 shrink-0 aspect-square rounded border border-border shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
           style={{ backgroundColor: color }}
           title="Change color"
         />
