@@ -272,10 +272,9 @@ function CardEditForm({ pageDetail, folders, pageId, onOpenChange }: CardEditFor
           {tagCache?.map(tag => (
             <Badge
               key={tag.id}
-              variant={
-                selectedTagIds.includes(tag.id) ? 'default' : 'outline'
-              }
+              variant="outline"
               className="cursor-pointer"
+              style={selectedTagIds.includes(tag.id) ? { borderColor: tag.color, color: tag.color } : undefined}
               onClick={() => handleTagToggle(tag.id)}
             >
               {tag.name}
@@ -284,7 +283,7 @@ function CardEditForm({ pageDetail, folders, pageId, onOpenChange }: CardEditFor
           {newTags.map(tagName => (
             <Badge
               key={tagName}
-              variant="default"
+              variant="outline"
               className="cursor-pointer gap-1"
             >
               {tagName}

@@ -112,14 +112,15 @@ function PageCardComponent({ page, onDelete }: PageCardProps) {
                 {bindTags.slice(0, 3).map(tag => (
                   <Badge
                     key={tag.id}
-                    className="text-xs font-normal text-white"
-                    style={{ backgroundColor: tag.color }}
+                    variant="outline"
+                    className="text-xs font-normal"
+                    style={{ borderColor: tag.color, color: tag.color }}
                   >
                     {tag.name}
                   </Badge>
                 ))}
                 {bindTags.length > 3 && (
-                  <Badge variant="secondary" className="text-xs font-normal">
+                  <Badge variant="outline" className="text-xs font-normal">
                     +
                     {bindTags.length - 3}
                   </Badge>
