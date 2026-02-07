@@ -1,14 +1,12 @@
 import { type FormEvent, useState } from 'react'
 import { toast } from 'sonner'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
-import { Button } from '@web-archive/shared/components/ui/button'
+import { CornerDownLeft } from 'lucide-react'
 import { Input } from '@web-archive/shared/components/ui/input'
 import router from '~/utils/router'
 
 export default function LoginPage() {
   const [key, setKey] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -46,10 +44,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={handleLogin} className="flex w-full max-w-sm gap-2">
-        <div className="relative flex-1">
+      <form onSubmit={handleLogin} className="w-full max-w-sm">
+        <div className="relative">
           <Input
-            type={showPassword ? 'text' : 'password'}
+            type="password"
             placeholder="Enter password"
             value={key}
             onChange={e => setKey(e.target.value)}
@@ -58,18 +56,8 @@ export default function LoginPage() {
             autoFocus
             disabled={loading}
           />
-          <button
-            type="button"
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setShowPassword(!showPassword)}
-            tabIndex={-1}
-          >
-            {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-          </button>
+          <CornerDownLeft className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         </div>
-        <Button type="submit" disabled={loading}>
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Go'}
-        </Button>
       </form>
     </div>
   )
