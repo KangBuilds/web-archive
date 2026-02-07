@@ -51,7 +51,7 @@ function ColorPicker({ color, onChange }: ColorPickerProps) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="size-7 rounded-md border border-border shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+          className="size-7 rounded border border-border shadow-sm transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
           style={{ backgroundColor: color }}
           title="Change color"
         />
@@ -62,7 +62,7 @@ function ColorPicker({ color, onChange }: ColorPickerProps) {
             <button
               key={preset}
               type="button"
-              className="group relative size-7 rounded-md border border-border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring"
+              className="group relative size-7 rounded border border-border transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-ring"
               style={{ backgroundColor: preset }}
               onClick={() => {
                 onChange(preset)
@@ -80,7 +80,7 @@ function ColorPicker({ color, onChange }: ColorPickerProps) {
         </div>
         <div className="mt-3 flex items-center gap-2 border-t pt-3">
           <div
-            className="size-7 shrink-0 rounded-md border border-border"
+            className="size-7 shrink-0 rounded border border-border"
             style={{ backgroundColor: customColor }}
           />
           <Input
