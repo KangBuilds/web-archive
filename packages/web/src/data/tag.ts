@@ -7,6 +7,13 @@ function getAllTag(): Promise<Tag[]> {
   })
 }
 
+function createTag(body: { name: string, color?: string }): Promise<void> {
+  return fetcher<void>('/tags/create', {
+    method: 'POST',
+    body,
+  })
+}
+
 function deleteTag(tagId: number): Promise<void> {
   return fetcher<void>(`/tags/delete`, {
     method: 'DELETE',
@@ -14,7 +21,7 @@ function deleteTag(tagId: number): Promise<void> {
   })
 }
 
-function updateTag(body: { id: number, name: string }): Promise<void> {
+function updateTag(body: { id: number, name?: string, color?: string }): Promise<void> {
   return fetcher<void>(`/tags/update`, {
     method: 'POST',
     body,
@@ -23,6 +30,7 @@ function updateTag(body: { id: number, name: string }): Promise<void> {
 
 export {
   getAllTag,
+  createTag,
   deleteTag,
   updateTag,
 }

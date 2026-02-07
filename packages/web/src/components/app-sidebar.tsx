@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   Pencil,
   Plus,
+  Settings2,
   StickyNote,
   Trash2,
 } from 'lucide-react'
@@ -41,11 +42,12 @@ import {
 import { Button } from '@web-archive/shared/components/ui/button'
 import { Link, useNavigate, useParams } from '~/router'
 import { createFolder, deleteFolder, getAllFolder, updateFolder } from '~/data/folder'
-import { deleteTag, getAllTag, updateTag } from '~/data/tag'
+import { createTag, deleteTag, getAllTag, updateTag } from '~/data/tag'
 
 const NewFolderDialog = lazy(() => import('~/components/new-folder-dialog'))
 const EditFolderDialog = lazy(() => import('~/components/edit-folder-dialog'))
 const EditTagDialog = lazy(() => import('~/components/edit-tag-dialog'))
+const TagManagerDialog = lazy(() => import('~/components/tag-manager-dialog'))
 
 interface AppSidebarProps {
   selectedTag: number | null
@@ -68,6 +70,7 @@ export default function AppSidebar({
   const [editFolderName, setEditFolderName] = useState('')
   const [editTagId, setEditTagId] = useState<number | null>(null)
   const [editTagName, setEditTagName] = useState('')
+  const [tagManagerOpen, setTagManagerOpen] = useState(false)
 
   // Queries
   const { data: folders = [] } = useQuery({
@@ -109,6 +112,14 @@ export default function AppSidebar({
     },
   })
 
+  const createTagMutation = useMutation({
+    mutationFn: createTag,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tags'] })
+      toast.success('Tag created')
+    },
+  })
+
   const deleteTagMutation = useMutation({
     mutationFn: deleteTag,
     onSuccess: () => {
@@ -120,8 +131,8 @@ export default function AppSidebar({
   })
 
   const updateTagMutation = useMutation({
-    mutationFn: ({ id, name }: { id: number, name: string }) =>
-      updateTag({ id, name }),
+    mutationFn: ({ id, name, color }: { id: number, name?: string, color?: string }) =>
+      updateTag({ id, name, color }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags'] })
       toast.success('Tag updated')
@@ -275,6 +286,12 @@ export default function AppSidebar({
           {/* Tags */}
           <SidebarGroup>
             <SidebarGroupLabel>Tags</SidebarGroupLabel>
+            <SidebarGroupAction
+              title="Manage tags"
+              onClick={() => setTagManagerOpen(true)}
+            >
+              <Settings2 className="size-4" />
+            </SidebarGroupAction>
             <SidebarGroupContent>
               <SidebarMenu>
                 {tags.filter(tag => tag.pageIds.length > 0).map(tag => (
@@ -387,6 +404,20 @@ export default function AppSidebar({
               editTagId
               && updateTagMutation.mutate({ id: editTagId, name: editTagName })}
             loading={updateTagMutation.isPending}
+          />
+        )}
+
+        {tagManagerOpen && (
+          <TagManagerDialog
+            open={tagManagerOpen}
+            onOpenChange={setTagManagerOpen}
+            tags={tags}
+            onCreateTag={tag => createTagMutation.mutate(tag)}
+            onUpdateTag={tag => updateTagMutation.mutate(tag)}
+            onDeleteTag={id => deleteTagMutation.mutate(id)}
+            isCreating={createTagMutation.isPending}
+            isUpdating={updateTagMutation.isPending}
+            isDeleting={deleteTagMutation.isPending}
           />
         )}
       </Suspense>
