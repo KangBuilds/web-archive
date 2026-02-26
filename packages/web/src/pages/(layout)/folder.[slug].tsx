@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { FolderOpen } from 'lucide-react'
+import { FolderOpen, LayoutGrid, List } from 'lucide-react'
 import { isNil } from '@web-archive/shared/utils'
 import { ScrollArea } from '@web-archive/shared/components/ui/scroll-area'
 import { Button } from '@web-archive/shared/components/ui/button'
@@ -11,7 +11,42 @@ import { useParams } from '~/router'
 import NotFound from '~/components/not-found'
 import { deletePage, queryPage } from '~/data/page'
 import PageCard from '~/components/page-card'
+import PageListItem from '~/components/page-list-item'
 import PageHeader from '~/components/page-header'
+import { useViewMode, type ViewMode } from '~/hooks/use-view-mode'
+
+function ViewToggle({
+  viewMode,
+  setViewMode,
+}: {
+  viewMode: ViewMode
+  setViewMode: (mode: ViewMode) => void
+}) {
+  return (
+    <div className="flex items-center rounded-md border p-0.5">
+      <Button
+        variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-7 w-7"
+        onClick={() => setViewMode('grid')}
+        title="Grid view"
+      >
+        <LayoutGrid className="h-3.5 w-3.5" />
+        <span className="sr-only">Grid view</span>
+      </Button>
+      <Button
+        variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+        size="icon"
+        className="h-7 w-7"
+        onClick={() => setViewMode('list')}
+        title="List view"
+      >
+        <List className="h-3.5 w-3.5" />
+        <span className="sr-only">List view</span>
+      </Button>
+    </div>
+  )
+}
 
 function PageGrid({
   pages,
@@ -29,6 +64,22 @@ function PageGrid({
   )
 }
 
+function PageList({
+  pages,
+  onDelete,
+}: {
+  pages: Page[]
+  onDelete: (page: Page) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      {pages.map(page => (
+        <PageListItem key={page.id} page={page} onDelete={onDelete} />
+      ))}
+    </div>
+  )
+}
+
 function PageGridSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -37,6 +88,22 @@ function PageGridSkeleton() {
           <Skeleton className="aspect-video w-full rounded-lg" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-3 w-1/2" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function PageListSkeleton() {
+  return (
+    <div className="flex flex-col gap-2">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 rounded-lg border p-3">
+          <Skeleton className="h-16 w-28 flex-shrink-0 rounded-md" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
         </div>
       ))}
     </div>
@@ -77,6 +144,7 @@ export default function FolderPage() {
       handleSearch: () => void
     }>()
 
+  const { viewMode, setViewMode } = useViewMode()
   const PAGE_SIZE = 14
 
   const {
@@ -141,7 +209,7 @@ export default function FolderPage() {
         <div className="p-6">
           {isLoading
             ? (
-              <PageGridSkeleton />
+                viewMode === 'grid' ? <PageGridSkeleton /> : <PageListSkeleton />
               )
             : pages.length === 0
               ? (
@@ -149,7 +217,7 @@ export default function FolderPage() {
                 )
               : (
                 <div className="space-y-6">
-                  <div>
+                  <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
                       {total}
                       {' '}
@@ -166,11 +234,21 @@ export default function FolderPage() {
                         </span>
                       )}
                     </p>
+                    <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
                   </div>
-                  <PageGrid
-                    pages={pages}
-                    onDelete={page => deletePageMutation.mutate(page)}
-                  />
+                  {viewMode === 'grid'
+                    ? (
+                      <PageGrid
+                        pages={pages}
+                        onDelete={page => deletePageMutation.mutate(page)}
+                      />
+                      )
+                    : (
+                      <PageList
+                        pages={pages}
+                        onDelete={page => deletePageMutation.mutate(page)}
+                      />
+                      )}
                   {hasNextPage && (
                     <div className="flex justify-center pt-4">
                       <Button

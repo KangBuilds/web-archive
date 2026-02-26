@@ -78,6 +78,11 @@
     scroll-behavior: smooth;
   }
 
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;

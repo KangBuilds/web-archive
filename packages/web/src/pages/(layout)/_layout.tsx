@@ -53,7 +53,7 @@ function LayoutContent() {
           selectedTag={selectedTag}
           setSelectedTag={setSelectedTagAndReload}
         />
-        <SidebarInset>
+        <SidebarInset className="min-w-0 overflow-x-hidden">
           <Outlet
             context={{
               keyword,
